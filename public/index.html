@@ -1,0 +1,42 @@
+
+<h1 id="greeting">Hello from the frontend!</h1>
+<button type="button" onclick="changeGreeting()">Change Greeting</button>
+<br><br>
+<table id="my-table" border="1">
+  <thead>
+    <tr><th>Name</th><th>Age</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+<script src="https://unpkg.com/rdflib/dist/rdflib.min.js"></script>
+<script>
+  function changeGreeting(){
+    document.getElementById('greeting').textContent = 'Hello from the button';
+  }
+
+  fetch('/api/rdf')
+    .then(res => res.text())
+    .then(turtle => {
+      const $rdf = window.$rdf;
+      const store = $rdf.graph();
+      const FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+      $rdf.parse(turtle, store, 'http://example.org/', 'text/turtle');
+
+      // Find all people nodes
+      const people = [];
+      store.statementsMatching(undefined, FOAF('name')).forEach(stmt => {
+        const personNode = stmt.subject;
+        const name = stmt.object.value;
+        const ageStmt = store.any(personNode, FOAF('age'));
+        const age = ageStmt ? ageStmt.value : '';
+        people.push({ name, age });
+      });
+
+      const tbody = document.querySelector('#my-table tbody');
+      people.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row.name}</td><td>${row.age}</td>`;
+        tbody.appendChild(tr);
+      });
+    });
+</script>
