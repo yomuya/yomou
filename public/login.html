@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Syosetu Tracker</title>
+</head>
+<body>
+  <h1>Add User</h1>
+  <button id="createUserBtn">Create User</button>
+  <button onclick="window.location.href='/dashboard'">Go to Dashboard</button>
+  
+  <dialog>
+  <form id="userForm">
+    <input name="name" placeholder="Name" required>
+    <input name="password" placeholder="Password" type="password" required>
+    <input name="email" placeholder="Email" required>
+    <button type="submit">Add</button>
+  </form>
+  </dialog>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <input name="user" placeholder="Username/Email" required>
+    <input name="password" placeholder="Password" type="password" required>
+    <button type="submit">Login</button>
+  </form>
+  <button id="logoutBtn" style="display:none;">Logout</button>
+  <script>
+    document.getElementById('userForm').onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name.value,
+          pass: form.password.value,
+          email: form.email.value
+        })
+      })
+      .then(res => res.json())
+      .then(() => {
+        form.reset();
+      });
+    };
+
+    document.getElementById('loginForm').onsubmit = function(e) {
+      e.preventDefault();
+      const form = e.target;
+      fetch('/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user: form.user.value,
+          password: form.password.value
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.error) {
+          alert('Login failed: ' + res.error);
+        } else {
+          localStorage.setItem('token', res.token);
+          alert('Welcome, ' + res.user.name + '!');
+          window.location.href = '/dashboard';
+        }
+      });
+    };
+
+    function updateLogoutBtn() {
+      const token = localStorage.getItem('token');
+      document.getElementById('logoutBtn').style.display = token ? '' : 'none';
+    }
+    updateLogoutBtn();
+
+    document.getElementById('logoutBtn').onclick = function() {
+      localStorage.removeItem('token');
+      alert('Logged out!');
+      updateLogoutBtn();
+    };
+
+    document.getElementById('createUserBtn').onclick = function() {
+      document.querySelector('dialog').showModal();
+    };
+  </script>
+</body>
+</html>
