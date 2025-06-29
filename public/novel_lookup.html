@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Syosetu API Info</title>
+</head>
+<body>
+  <div id="lookupContent" style="display:none;">
+  <h1>Syosetu API Info</h1>
+  <button onclick="window.location.href='/dashboard.html'">Go to Dashboard</button>
+  <input type="text" id="ncodeInput" placeholder="Enter ncode (e.g. n4185ci)" default="n4185ci">
+  <button id="lookupBtn">Lookup Novel</button>
+  <pre id="output">Loading...</pre>
+  </div>
+  <script src="/auth.js"></script>
+  <script>
+    requireAuth('lookupContent');
+    function fetchNovel(ncode) {
+      authFetch(`/api/syosetu?ncode=${encodeURIComponent(ncode)}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(err => {
+          document.getElementById('output').textContent = 'Error: ' + err;
+        });
+    }
+
+    document.getElementById('lookupBtn').onclick = function() {
+      const ncode = document.getElementById('ncodeInput').value || 'n4185ci';
+      fetchNovel(ncode);
+    };
+
+    // Initial load
+    fetchNovel('n4185ci');
+  </script>
+</body>
+</html>
