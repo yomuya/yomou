@@ -12,9 +12,10 @@
     <button onclick="window.location.href='/lookup'">Go to Novel Lookup</button>
     <h2>Users</h2>
     <ul id="userList"></ul>
-    <h2>novels</h2>
+    <h2>Tracked Novels</h2>
+    <ul id="trackedNovelList"></ul>
+    <h2>All Novels</h2>
     <ul id="novelList"></ul>
-  </div>
 
   <script src="/auth.js"></script>
   <script>
@@ -42,6 +43,25 @@
         });
       });
     }
+    function loadFollows() {
+      authFetch('/api/syosetu/follow', { method: 'GET' })
+      .then(res => {
+        if (res.status === 401 || res.status === 403) {
+          document.getElementById('trackedNovelList').innerHTML = '<li>No tracked novels</li>';
+          return [];
+        }
+        return res.json();
+      })
+      .then(novels => {
+        const list = document.getElementById('trackedNovelList');
+        list.innerHTML = '';
+        novels.forEach(n => {
+          const li = document.createElement('li');
+          li.textContent = `Ncode:${n.ncode}, Title: ${n.title}, Author: ${n.author}, Total Chapters: ${n.total_chapters}, Last Checked: ${n.last_checked}, User ID: ${n.user_id}, Followed At: ${n.followed_at}`;
+          list.appendChild(li);
+        });
+      });
+    }
     function loadNovels() {
       authFetch('/api/syosetu/novels')
       .then(res => {
@@ -62,6 +82,7 @@
       });
     }
     loadUsers();
+    loadFollows();
     loadNovels();
 
     document.getElementById('logoutBtn').onclick = function() {

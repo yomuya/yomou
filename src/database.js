@@ -45,6 +45,15 @@ db.serialize(() => {
     )
   `);
   db.run(`
+    CREATE TABLE IF NOT EXISTS user_novel_follows (
+      user_id INTEGER NOT NULL,
+      ncode TEXT NOT NULL,
+      PRIMARY KEY (user_id, ncode),
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (ncode) REFERENCES novels(ncode)
+    )
+  `);
+  db.run(`
     CREATE TABLE IF NOT EXISTS user_stats (
       user_id INTEGER NOT NULL,
       ncode TEXT NOT NULL,
