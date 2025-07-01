@@ -48,6 +48,7 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS user_novel_follows (
       user_id INTEGER NOT NULL,
       ncode TEXT NOT NULL,
+      current_chapter INTEGER DEFAULT 1,
       PRIMARY KEY (user_id, ncode),
       FOREIGN KEY (user_id) REFERENCES users(id),
       FOREIGN KEY (ncode) REFERENCES novels(ncode)

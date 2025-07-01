@@ -7,7 +7,7 @@
 <body>
   <div id="lookupContent" style="display:none;">
   <h1>Syosetu API Info</h1>
-  <button onclick="window.location.href='/dashboard.html'">Go to Dashboard</button>
+  <button onclick="window.location.href='/dashboard'">Go to Dashboard</button>
   <input type="text" id="ncodeInput" placeholder="Enter ncode (e.g. n4185ci)" value="n4185ci">
   <button id="lookupBtn">Lookup Ncode</button>
   <button id="trackBtn" style="display:none;">Track Novel</button>
@@ -35,7 +35,7 @@
     };
     document.getElementById('trackBtn').onclick = function() {
       const ncode = document.getElementById('ncodeInput').value || 'n4185ci';
-      authFetch(`/api/syosetu/follow`, {
+      authFetch(`/api/novels/follow`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ncode })
