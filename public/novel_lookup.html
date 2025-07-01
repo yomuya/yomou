@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Syosetu API Info</title>
+</head>
+<body>
+  <div id="lookupContent" style="display:none;">
+  <h1>Syosetu API Info</h1>
+  <button onclick="window.location.href='/dashboard'">Go to Dashboard</button>
+  <input type="text" id="ncodeInput" placeholder="Enter ncode (e.g. n4185ci)" value="n4185ci">
+  <button id="lookupBtn">Lookup Ncode</button>
+  <button id="trackBtn" style="display:none;">Track Novel</button>
+  <p id="trackMsg" style="display:none;">Tracking </>
+  <pre id="output">Loading...</pre>
+  </div>
+  <script src="/auth.js"></script>
+  <script>
+    requireAuth('lookupContent');
+    function fetchNovel(ncode) {
+      authFetch(`/api/syosetu?ncode=${encodeURIComponent(ncode)}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+          document.getElementById('trackBtn').style.display = '';
+        })
+        .catch(err => {
+          document.getElementById('output').textContent = 'Error: ' + err;
+        });
+    }
+
+    document.getElementById('lookupBtn').onclick = function() {
+      const ncode = document.getElementById('ncodeInput').value || 'n4185ci';
+      fetchNovel(ncode);
+    };
+    document.getElementById('trackBtn').onclick = function() {
+      const ncode = document.getElementById('ncodeInput').value || 'n4185ci';
+      authFetch(`/api/novels/follow`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ncode })
+        })
+        .then(res => res.text())
+        .then(text => {
+          document.getElementById('trackMsg').style.display = '';
+          document.getElementById('trackMsg').innerHTML += text;
+        })
+    };
+
+    // Initial load
+    fetchNovel('n4185ci');
+  </script>
+</body>
+</html>

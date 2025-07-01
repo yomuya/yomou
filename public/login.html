@@ -54,12 +54,12 @@
         })
       })
       .then(res => res.json())
-      .then(res => {
-        if (res.error) {
-          alert('Login failed: ' + res.error);
+      .then(response => {
+        if (response.error) {
+          alert('Login failed: ' + response.error);
         } else {
-          localStorage.setItem('token', res.token);
-          alert('Welcome, ' + res.user.name + '!');
+          localStorage.setItem('token', response.token);
+          alert('Welcome, ' + response.user.name + '!');
           window.location.href = '/dashboard';
         }
       });

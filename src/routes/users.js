@@ -46,7 +46,7 @@ router.post('/login', (req, res) => {
       const token = jwt.sign(
         { id: row.id, name: row.name, email: row.email },
         JWT_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '24h' }
       );
       res.json({ token, user: { id: row.id, name: row.name, email: row.email } });
     } else {
@@ -58,10 +58,10 @@ router.post('/login', (req, res) => {
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.sendStatus(401);
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
+    if (err) return res.status(403).json({ error: 'Forbidden' });
     req.user = user;
     next();
   });

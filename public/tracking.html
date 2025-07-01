@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Syosetu Tracker</title>
+</head>
+<body>
+
+  <div id="trackerContent" style="display:none;">
+    <h1>Tracker</h1>
+    <button onclick="window.location.href='/dashboard'">Go to Dashboard</button>
+    <h2>Tracked Novels</h2>
+    <ul id="trackedNovelList"></ul>
+
+  <script src="/auth.js"></script>
+  <script>
+    requireAuth('trackerContent');
+    function loadFollows() {
+      authFetch('/api/novels/follow', { method: 'GET' })
+      .then(res => {
+        if (res.status === 401 || res.status === 403) {
+          document.getElementById('trackedNovelList').innerHTML = '<li>No tracked novels</li>';
+          return [];
+        }
+        return res.json();
+      })
+      .then(novels => {
+        const list = document.getElementById('trackedNovelList');
+        list.innerHTML = '';
+        novels.forEach(n => {
+          const li = document.createElement('li');
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.min = 1;
+          input.value = n.current_chapter || 1;
+          input.id = `current-chapter-${n.ncode}`;
+          input.addEventListener('change', function() {
+            const ncode = n.ncode;
+            const chapter = parseInt(input.value, 10) || n.current_chapter;
+            authFetch(`/api/novels/follow`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ncode, chapter })
+            });
+          });
+
+          li.textContent = `Ncode:${n.ncode}, Title: ${n.title}`;
+          li.appendChild(document.createTextNode(' Chapter: '));
+          li.appendChild(input);
+          li.appendChild(document.createTextNode(` / ${n.total_chapters}`));
+          list.appendChild(li);
+        });
+      });
+    }
+    loadFollows();
+
+  </script>
+</body>
+</html>
