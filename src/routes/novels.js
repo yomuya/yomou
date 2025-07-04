@@ -39,19 +39,28 @@ router.post('/follow', authenticateToken, async (req, res) => {
   if (!ncode) {
     return res.status(400).json({ error: 'ncode required' });
   }
-  db.run(
-    `INSERT INTO user_novel_follows (user_id, ncode, current_chapter)
-     VALUES (?, ?, ?)
-     ON CONFLICT(user_id, ncode) DO UPDATE SET current_chapter=excluded.current_chapter`,
-    [userId, ncode, chapter],
-    function(err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-      } else {
-        res.json({ success: true, followed: ncode });
+
+  if (Array.isArray(data) && data[1] && data[1].ncode && data[1].title && data[1].writer && data[1].general_all_no) {
+    const { ncode, title, writer, general_all_no } = data[1];
+    db.run(
+      `INSERT OR REPLACE INTO novels (ncode, title, author, total_chapters)
+       VALUES (?, ?, ?, ?)`,
+      [ncode, title, writer, general_all_no]
+    );
+    db.run(
+      `INSERT INTO user_novel_follows (user_id, ncode, current_chapter)
+       VALUES (?, ?, ?)
+       ON CONFLICT(user_id, ncode) DO UPDATE SET current_chapter=excluded.current_chapter`,
+      [userId, ncode, chapter],
+      function(err) {
+        if (err) {
+          res.status(500).json({ error: err.message });
+        } else {
+          res.json({ success: true, followed: ncode });
+        }
       }
-    }
-  );
+    );
+  }
 });
 
 module.exports = { router };

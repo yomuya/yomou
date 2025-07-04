@@ -20,14 +20,14 @@ router.get('/', authenticateToken, async (req, res) => {
     const data = await response.json();
     res.json(data);
 
-    if (Array.isArray(data) && data[1] && data[1].ncode && data[1].title && data[1].writer && data[1].general_all_no) {
-      const { ncode, title, writer, general_all_no } = data[1];
-      db.run(
-        `INSERT OR REPLACE INTO novels (ncode, title, author, total_chapters)
-         VALUES (?, ?, ?, ?)`,
-        [ncode, title, writer, general_all_no]
-      );
-    }
+    // if (Array.isArray(data) && data[1] && data[1].ncode && data[1].title && data[1].writer && data[1].general_all_no) {
+    //   const { ncode, title, writer, general_all_no } = data[1];
+    //   db.run(
+    //     `INSERT OR REPLACE INTO novels (ncode, title, author, total_chapters)
+    //      VALUES (?, ?, ?, ?)`,
+    //     [ncode, title, writer, general_all_no]
+    //   );
+    // }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
