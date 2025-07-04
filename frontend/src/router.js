@@ -1,9 +1,9 @@
 import { requireAuth } from './auth.js'
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from './components/Login.vue'
-import Dashboard from './components/Dashboard.vue'
-import Lookup from './components/Lookup.vue'
-import Tracker from './components/Tracker.vue'
+import Login from './Login.vue'
+import Dashboard from './Dashboard.vue'
+import Lookup from './Lookup.vue'
+import Tracker from './Tracker.vue'
 
 const routes = [
   { path: '/login', component: Login },

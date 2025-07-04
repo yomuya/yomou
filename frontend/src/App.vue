@@ -1,11 +1,18 @@
 <script setup>
-import './style.css'
+import { ref } from 'vue'
 import { RouterView } from 'vue-router'
+import Hamburger from './components/Hamburger.vue'
+
+const menuOpen = ref(false)
 </script>
 
 <template>
-
-  <RouterView/>
+  <div :class="{ 'menu-open': menuOpen }">
+    <Hamburger @toggle="menuOpen = $event" />
+    <div class="container">
+      <RouterView/>
+    </div>
+  </div>
 </template>
 
 <style scoped>

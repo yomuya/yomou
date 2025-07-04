@@ -1,0 +1,59 @@
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2em 0;
+  background: #20203a;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  border-radius: 10px;
+  overflow: hidden;
+}
+th, td {
+  border: none;
+  padding: 0.9em 1.5em;
+  text-align: left;
+  vertical-align: top;
+  border-right: 1px solid #35357a;
+}
+th:last-child, td:last-child {
+  border-right: none;
+}
+th {
+  background: #23234a;
+  font-weight: 600;
+  font-size: 1.08em;
+  letter-spacing: 0.03em;
+  color: #ffe066;
+  border-bottom: 2px solid #35357a;
+  text-shadow: 0 1px 2px #0007;
+  box-shadow: 0 2px 4px #0002;
+}
+tr:nth-child(even) td {
+  background: #23234a;
+}
+tr:nth-child(odd) td {
+  background: #20203a;
+}
+tr:hover td {
+  background: #2d2d5a;
+  transition: background 0.18s;
+}
+
+input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.3em 0.5em;
+  font-size: 1em;
+  background: #23234a;
+  color: #ffe066;
+  border: 1px solid #35357a;
+  border-radius: 4px;
+  outline: none;
+  transition: border 0.2s;
+}
+input[type="number"]:focus {
+  border: 1.5px solid #ffe066;
+  background: #282850;
+}
+
