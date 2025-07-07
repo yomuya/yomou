@@ -1,5 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('database.db', (err) => {
+const fs = require('fs');
+
+if (!fs.existsSync('./data')) {
+  fs.mkdirSync('./data', { recursive: true });
+}
+const db = new sqlite3.Database('data/database.db', (err) => {
   if (err) {
     console.error('Could not open database', err);
   } else {
