@@ -1,0 +1,14 @@
+
+version: "3.8"
+
+services:
+  syosetu-tracker:
+    image: ghci.io/Julian447/Syosetu-Tracker
+    container_name: syosetu-tracker
+    ports:
+      - "3000:3000"
+    environment:
+      # NODE_ENV: production
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
