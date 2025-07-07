@@ -9,14 +9,22 @@ const { router: novelRoutes } = require('./routes/novels');
 const app = express();
 const port = 3000;
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-}
-
 app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/syosetu', syosetuRoutes);
 app.use('/api/novels', novelRoutes);
+
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// }
+
+// Serve static files from Vite build
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+});
+
 
 // app.get('/login', (req, res) => {
 //   res.sendFile(path.join(__dirname, './login.html'));
