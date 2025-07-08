@@ -51,7 +51,7 @@ const routes = [
         next('/login');
       }
     }
-  },
+  }
 ]
 
 export default createRouter({

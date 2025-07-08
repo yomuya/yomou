@@ -31,6 +31,7 @@ const emit = defineEmits(['toggle']);
         <button @click="goTo('/')">Dashboard</button>
         <button @click="goTo('/lookup')">Novel Lookup</button>
         <button @click="goTo('/tracker')">Tracker</button>
+        <button @click="goTo('/reader')">Reader</button>
         <button @click="logout">Logout</button>
       </div>
     </div>

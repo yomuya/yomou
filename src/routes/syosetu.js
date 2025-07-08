@@ -25,9 +25,12 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/scrape', async (req, res) => {
-  const ncode = req.query.ncode ? req.query.ncode : "n4185ci";
-  const chapterNum = req.query.chapter ? req.query.chapter : 5;
+router.get('/scrape', authenticateToken, async (req, res) => {
+  const ncode = req.query.ncode;
+  const chapterNum = req.query.chapter;
+  if (!ncode || !chapterNum) {
+    return res.status(400).json({ error: 'Missing ncode or chapter parameter' });
+  }
   const url = `https://ncode.syosetu.com/${encodeURIComponent(ncode)}/${encodeURIComponent(chapterNum)}`;
   try {
     const response = await fetch(url);
@@ -53,9 +56,9 @@ router.get('/scrape', async (req, res) => {
   }
 });
 
-router.get('/chapter', async (req, res) => {
-  const ncode = req.query.ncode ? req.query.ncode : "n4185ci";
-  const chapterNum = req.query.chapter ? req.query.chapter : 5;
+router.get('/chapter', authenticateToken, async (req, res) => {
+  const ncode = req.query.ncode;
+  const chapterNum = req.query.chapter;
   if (!ncode || !chapterNum) {
     return res.status(400).json({ error: 'Missing ncode or chapter parameter' });
   }
