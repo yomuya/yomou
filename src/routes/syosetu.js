@@ -27,8 +27,8 @@ router.get('/', authenticateToken, async (req, res) => {
 
 router.get('/scrape', async (req, res) => {
   const ncode = req.query.ncode ? req.query.ncode : "n4185ci";
-  const chapter = req.query.chapter ? req.query.chapter : 5;
-  const url = `https://ncode.syosetu.com/${encodeURIComponent(ncode)}/${encodeURIComponent(chapter)}`;
+  const chapterNum = req.query.chapter ? req.query.chapter : 5;
+  const url = `https://ncode.syosetu.com/${encodeURIComponent(ncode)}/${encodeURIComponent(chapterNum)}`;
   try {
     const response = await fetch(url);
     const html = await response.text();
@@ -36,26 +36,42 @@ router.get('/scrape', async (req, res) => {
     const $ = cheerio.load(html);
 
     const title = $('.p-novel__title').first().text().trim();
-    const preface = $('div.p-novel__text--preface').first().html().trim();
-    const chapter = $('div.p-novel__text:not(.p-novel__text--preface):not(.p-novel__text--afterword)').first().html().trim();
-    const afterword = $('div.p-novel__text--afterword').first().html().trim();
+    const prefaceText = $('div.p-novel__text--preface').first().text().trim();
+    const chapterText = $('div.p-novel__text:not(.p-novel__text--preface):not(.p-novel__text--afterword)').first().text().trim();
+    const afterwordText = $('div.p-novel__text--afterword').first().text().trim();
 
-    const pageHtml = `
-      <html>
-        <head><meta charset="UTF-8"><title>${title}</title></head>
-        <body>
-          <h1>${title}</h1>
-          ${preface ? `<h2>Preface</h2><div>${preface}</div>` : ''}
-          ${chapter ? `<h2>Chapter</h2><div>${chapter}</div>` : ''}
-          ${afterword ? `<h2>Afterword</h2><div>${afterword}</div>` : ''}
-        </body>
-      </html>
-    `;
+    const len = prefaceText.length + chapterText.length + afterwordText.length;
+    db.run(
+      `INSERT OR REPLACE INTO chapters (ncode, chapter_number, title, preface, body, afterword, length_chars)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [ncode, chapterNum, title, prefaceText, chapterText, afterwordText, len]
+    );
+    res.json({success: true});
 
-    res.send(pageHtml);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.get('/chapter', async (req, res) => {
+  const ncode = req.query.ncode ? req.query.ncode : "n4185ci";
+  const chapterNum = req.query.chapter ? req.query.chapter : 5;
+  if (!ncode || !chapterNum) {
+    return res.status(400).json({ error: 'Missing ncode or chapter parameter' });
+  }
+  db.get(
+    `SELECT * FROM chapters WHERE ncode = ? AND chapter_number = ?`,
+    [ncode, chapterNum],
+    (err, row) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (!row) {
+        return res.status(404).json({ error: 'Chapter not found' });
+      }
+      res.json(row);
+    }
+  );
 });
 
 
