@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "concurrently \"node src/index.js\" \"npm --prefix frontend run dev\"",
+    "dev": "concurrently \"nodemon src/index.js\" \"npm --prefix frontend run dev\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/Julian447/Syosetu-Tracker#readme",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cheerio": "^1.1.0",
     "commonjs": "^0.0.1",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
