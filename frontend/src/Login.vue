@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 
 const showDialog = ref(false);
 const dialog = ref(null);
-const newUser = ref({ name: '', password: '', email: '' });
+const newUser = ref({ name: '', password: ''});
 const loginUser = ref({ user: '', password: '' });
 
 const isLoggedIn = computed(() => !!localStorage.getItem('token'));
@@ -23,13 +23,12 @@ function addUser() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: newUser.value.name,
-      pass: newUser.value.password,
-      email: newUser.value.email
+      pass: newUser.value.password
     })
   })
   .then(res => res.json())
   .then(() => {
-    newUser.value = { name: '', password: '', email: '' };
+    newUser.value = { name: '', password: '' };
     showDialog.value = false;
   });
 }
@@ -57,7 +56,6 @@ function login() {
 
 function logout() {
   localStorage.removeItem('token');
-  alert('Logged out!');
 }
 </script>
 
@@ -67,7 +65,6 @@ function logout() {
       <form @submit.prevent="addUser">
         <input v-model="newUser.name" placeholder="Name" required>
         <input v-model="newUser.password" placeholder="Password" type="password" required>
-        <input v-model="newUser.email" placeholder="Email" required>
         <div style="display: flex; gap: 1rem;">
           <button type="submit">Add</button>
           <button type="button" @click="showDialog = false">Cancel</button>
@@ -78,7 +75,7 @@ function logout() {
     <div class="card">
       <h1>Login</h1>
       <form @submit.prevent="login">
-        <input v-model="loginUser.user" placeholder="Username/Email" required>
+        <input v-model="loginUser.user" placeholder="Username" required>
         <input v-model="loginUser.password" placeholder="Password" type="password" required>
         <button type="submit">Login</button>
       </form>
