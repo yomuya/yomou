@@ -30,7 +30,6 @@ const emit = defineEmits(['toggle']);
       <div class="nav-buttons-inner">
         <button @click="goTo('/')">Dashboard</button>
         <button @click="goTo('/lookup')">Novel Lookup</button>
-        <button @click="goTo('/tracker')">Tracker</button>
         <button @click="goTo('/reader')">Reader</button>
         <button @click="logout">Logout</button>
       </div>

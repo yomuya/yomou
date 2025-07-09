@@ -31,17 +31,6 @@ const routes = [
     }
   },
   {
-    path: '/tracker',
-    component: Tracker,
-    beforeEnter: (to, from, next) => {
-      if (requireAuth()) {
-        next();
-      } else {
-        next('/login');
-      }
-    }
-  },
-  {
     path: '/reader',
     component: Reader,
     beforeEnter: (to, from, next) => {
