@@ -5,7 +5,6 @@ import Table from './components/Table.vue';
 
 const users = ref([]);
 const trackedNovels = ref([]);
-const novels = ref([]);
 
 async function loadFollows() {
   try {
@@ -20,21 +19,17 @@ async function loadFollows() {
     console.error('Failed to load follows', e);
   }
 }
-async function loadNovels() {
-  try {
-    const res = await authFetch('/api/novels');
-    if (res.status === 401 || res.status === 403) {
-      novels.value = [];
-    } else {
-      novels.value = await res.json();
-    }
-  } catch (e) {
-    novels.value = [];
-    console.error('Failed to load novels', e);
-  }
+async function updateChapter(novel, event) {
+  const ncode = novel.ncode;
+  const chapter = parseInt(event.target.value, 10) || novel.current_chapter;
+  await authFetch('/api/novels/follow', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ncode, chapter }),
+  });
 }
+
 onMounted(loadFollows)
-onMounted(loadNovels)
 </script>
 
 <template>
@@ -52,14 +47,19 @@ onMounted(loadNovels)
         { key: 'total_chapters', label: 'Total Chapters' }
       ]"
       rowKey="ncode"
-    />
-    <h2>All Novels</h2>
-    <Table
-      v-if="novels.length > 0"
-      :items="novels"
-      :columns="Object.keys(novels[0] || {})"
-      rowKey="ncode"
-    />
+    >
+      <template #cell-current_chapter="{ item }">
+        <input
+          v-model="item.current_chapter"
+          type="number"
+          class="table-input"
+          @change="updateChapter(item, $event)"
+        />
+      </template>
+    </Table>
+    <div v-else>
+      No tracked novels
     </div>
+  </div>
 </template>
 
