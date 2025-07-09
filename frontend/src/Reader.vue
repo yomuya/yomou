@@ -1,10 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { authFetch } from './auth.js';
 
-const chapter = ref(null)
-const ncode = ref('n4185ci')
-const chapterNum = ref(5)
+const route = useRoute()
+const ncode = ref(route.params.ncode ?? '')
+const chapterNum = ref(route.params.chapter ? Number(route.params.chapter) : null)
+
+
 async function fetchChapter() {
   try {
     const res = await authFetch(`/api/syosetu/chapter?ncode=${ncode.value}&chapter=${chapterNum.value}`)

@@ -3,8 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Login from './Login.vue'
 import Dashboard from './Dashboard.vue'
 import Lookup from './Lookup.vue'
-import Tracker from './Tracker.vue'
 import Reader from './Reader.vue'
+import NovelInfo from './NovelInfo.vue'
 
 const routes = [
   { path: '/login', component: Login },
@@ -31,8 +31,19 @@ const routes = [
     }
   },
   {
-    path: '/reader',
+    path: '/reader/:ncode?/:chapter?',
     component: Reader,
+    beforeEnter: (to, from, next) => {
+      if (requireAuth()) {
+        next();
+      } else {
+        next('/login');
+      }
+    }
+  },
+  {
+    path: '/novel/:ncode',
+    component: NovelInfo,
     beforeEnter: (to, from, next) => {
       if (requireAuth()) {
         next();

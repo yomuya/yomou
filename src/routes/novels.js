@@ -4,7 +4,8 @@ const { db } = require('../database');
 const { authenticateToken } = require('./users');
 
 router.get('/', authenticateToken, async (req, res) => { 
-  db.all('SELECT * FROM novels', (err, rows) => {
+  const ncode = req.params.ncode ? req.params.ncode.toUpperCase() : undefined;
+  db.get('SELECT * FROM novels', (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
@@ -25,7 +26,6 @@ router.get('/follow', authenticateToken, async (req, res) => {
       if (err) {
         res.status(500).json({ error: err.message });
       } else {
-        // console.log(rows);
         res.json(rows);
       }
     }
@@ -73,5 +73,47 @@ router.post('/follow', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch novel info' });
   }
 });
+
+router.get('/:ncode/toc', authenticateToken, async (req, res) => {
+  const ncode = req.params.ncode ? req.params.ncode.toUpperCase() : undefined;
+  if (!ncode) {
+    return res.status(400).json({ error: 'ncode required' });
+  }
+  db.all(
+    `SELECT chapter_number AS chapter, title FROM chapters WHERE ncode = ? ORDER BY chapter_number ASC`,
+    [ncode],
+    (err, rows) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (!rows || rows.length === 0) {
+        return res.status(404).json({ error: 'Chapter not found' });
+      }
+      res.json(rows);
+    }
+  );
+});
+
+router.get('/:ncode', authenticateToken, async (req, res) => { 
+  const userId = req.user.id;
+  const ncode = req.params.ncode ? req.params.ncode.toUpperCase() : undefined;
+  if (!ncode) {
+    return res.status(400).json({ error: 'ncode required' });
+  }
+  db.get(
+    `SELECT user_novel_follows.*, novels.*
+     FROM user_novel_follows
+     JOIN novels ON user_novel_follows.ncode = novels.ncode
+     WHERE user_novel_follows.user_id = ? AND novels.ncode = ?`,
+    [userId, ncode],
+    (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
 
 module.exports = { router };
