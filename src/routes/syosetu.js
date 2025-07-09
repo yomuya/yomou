@@ -26,7 +26,7 @@ router.get('/', authenticateToken, async (req, res) => {
 });
 
 router.get('/scrape', authenticateToken, async (req, res) => {
-  const ncode = req.query.ncode;
+  const ncode = req.query.ncode ? req.query.ncode.toUpperCase() : undefined;
   const chapterNum = req.query.chapter;
   if (!ncode || !chapterNum) {
     return res.status(400).json({ error: 'Missing ncode or chapter parameter' });
@@ -57,7 +57,7 @@ router.get('/scrape', authenticateToken, async (req, res) => {
 });
 
 router.get('/chapter', authenticateToken, async (req, res) => {
-  const ncode = req.query.ncode;
+  const ncode = req.query.ncode ? req.query.ncode.toUpperCase() : undefined;
   const chapterNum = req.query.chapter;
   if (!ncode || !chapterNum) {
     return res.status(400).json({ error: 'Missing ncode or chapter parameter' });

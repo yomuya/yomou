@@ -31,7 +31,7 @@ const routes = [
     }
   },
   {
-    path: '/reader',
+    path: '/reader/:ncode?/:chapter?',
     component: Reader,
     beforeEnter: (to, from, next) => {
       if (requireAuth()) {
