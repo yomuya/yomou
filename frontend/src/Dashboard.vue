@@ -1,10 +1,16 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { authFetch } from './auth.js';
 import Table from './components/Table.vue';
+const router = useRouter();
 
 const users = ref([]);
 const trackedNovels = ref([]);
+
+function goToNovel(novel) {
+  router.push({ path: `/novel/${novel.ncode}` });
+}
 
 async function loadFollows() {
   try {
@@ -47,6 +53,7 @@ onMounted(loadFollows)
         { key: 'total_chapters', label: 'Total Chapters' }
       ]"
       rowKey="ncode"
+      @row-click="goToNovel"
     >
       <template #cell-current_chapter="{ item }">
         <input

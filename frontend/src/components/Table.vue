@@ -25,7 +25,7 @@ const slots = useSlots();
       </tr>
     </thead>
     <tbody>
-      <tr v-for="item in items" :key="item[rowKey]">
+      <tr v-for="item in items" :key="item[rowKey]" @click="$emit('row-click', item)">
         <template v-for="col in normalizedColumns" :key="col.key">
           <td>
             <slot
