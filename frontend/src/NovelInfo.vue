@@ -32,6 +32,22 @@ async function scrapeAhead() {
   scraping.value = false;
 }
 
+function setReaderChapter(chapter) {
+  if (novel.value && novel.value.ncode) {
+    localStorage.setItem(`${novel.value.ncode}_chapter`, chapter);
+  }
+}
+
+async function updateChapter(novelObj, event) {
+  const ncode = novelObj.ncode;
+  const chapter = novelObj.current_chapter;
+  await authFetch('/api/novels/follow', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ncode, chapter }),
+  });
+}
+
 onMounted(fetchNovel);
 </script>
 
@@ -44,7 +60,18 @@ onMounted(fetchNovel);
           <h2>{{ novel.title }}</h2>
           <p><strong>Ncode:</strong> {{ novel.ncode }}</p>
           <p><strong>Author:</strong> {{ novel.author }}</p>
-          <p><strong>Progress:</strong> {{novel.current_chapter}}/{{ novel.total_chapters }}</p>
+          <p><strong>Progress: </strong>
+            <input
+              v-if="novel"
+              v-model.number="novel.current_chapter"
+              type="number"
+              min="1"
+              :max="novel.total_chapters"
+              style="width: 4em; margin-right: 0.5em;"
+              @change="updateChapter(novel, $event)"
+            />
+            / {{ novel.total_chapters }}
+          </p>
           <p><strong>Last Checked:</strong> {{ novel.last_checked }}</p>
         </div>
         <div v-else>
@@ -63,7 +90,7 @@ onMounted(fetchNovel);
       <h3>Scraped Table of Contents</h3>
       <ul>
         <li v-for="ch in toc" :key="ch.chapter">
-          <router-link :to="`/reader/${novel.ncode}/${ch.chapter}`">
+          <router-link :to="`/reader/${novel.ncode}`" @click.native="setReaderChapter(ch.chapter)">
             {{ ch.title || 'Untitled' }}
           </router-link>
         </li>

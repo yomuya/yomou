@@ -42,10 +42,10 @@ router.post('/follow', authenticateToken, async (req, res) => {
 
   try {
     const response = await fetch(`https://api.syosetu.com/novelapi/api/?ncode=${ncode}&out=json`);
-    const data = await response.json(); // ✅ now data is defined
+    const data = await response.json();
 
     if (Array.isArray(data) && data[1] && data[1].ncode && data[1].title && data[1].writer && data[1].general_all_no) {
-      const { ncode, title, writer, general_all_no } = data[1];
+      const { title, writer, general_all_no } = data[1];
 
       db.run(
         `INSERT OR REPLACE INTO novels (ncode, title, author, total_chapters)
@@ -62,7 +62,7 @@ router.post('/follow', authenticateToken, async (req, res) => {
           if (err) {
             res.status(500).json({ error: err.message });
           } else {
-            res.json({ success: true, followed: ncode });
+            res.json({ success: true, followed: ncode, chapter: chapter });
           }
         }
       );
