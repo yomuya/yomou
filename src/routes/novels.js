@@ -4,7 +4,7 @@ const { db } = require('../database');
 const { authenticateToken } = require('./users');
 
 router.get('/', authenticateToken, async (req, res) => { 
-  const ncode = req.params.ncode ? req.params.ncode.toUpperCase() : undefined;
+  const ncode = req.params.ncode ? req.params.ncode.toLowerCase() : undefined;
   db.get('SELECT * FROM novels', (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
@@ -34,7 +34,7 @@ router.get('/follow', authenticateToken, async (req, res) => {
 
 router.post('/follow', authenticateToken, async (req, res) => { 
   const userId = req.user.id;
-  const ncode = req.body && req.body.ncode ? req.body.ncode.toUpperCase() : undefined;
+  const ncode = req.body && req.body.ncode ? req.body.ncode.toLowerCase() : undefined;
   const chapter = req.body.chapter ? req.body.chapter : 1;
   if (!ncode) {
     return res.status(400).json({ error: 'ncode required' });
@@ -42,10 +42,10 @@ router.post('/follow', authenticateToken, async (req, res) => {
 
   try {
     const response = await fetch(`https://api.syosetu.com/novelapi/api/?ncode=${ncode}&out=json`);
-    const data = await response.json(); // ✅ now data is defined
+    const data = await response.json();
 
     if (Array.isArray(data) && data[1] && data[1].ncode && data[1].title && data[1].writer && data[1].general_all_no) {
-      const { ncode, title, writer, general_all_no } = data[1];
+      const { title, writer, general_all_no } = data[1];
 
       db.run(
         `INSERT OR REPLACE INTO novels (ncode, title, author, total_chapters)
@@ -62,7 +62,7 @@ router.post('/follow', authenticateToken, async (req, res) => {
           if (err) {
             res.status(500).json({ error: err.message });
           } else {
-            res.json({ success: true, followed: ncode });
+            res.json({ success: true, followed: ncode, chapter: chapter });
           }
         }
       );
@@ -75,7 +75,7 @@ router.post('/follow', authenticateToken, async (req, res) => {
 });
 
 router.get('/:ncode/toc', authenticateToken, async (req, res) => {
-  const ncode = req.params.ncode ? req.params.ncode.toUpperCase() : undefined;
+  const ncode = req.params.ncode ? req.params.ncode.toLowerCase() : undefined;
   if (!ncode) {
     return res.status(400).json({ error: 'ncode required' });
   }
@@ -96,7 +96,7 @@ router.get('/:ncode/toc', authenticateToken, async (req, res) => {
 
 router.get('/:ncode', authenticateToken, async (req, res) => { 
   const userId = req.user.id;
-  const ncode = req.params.ncode ? req.params.ncode.toUpperCase() : undefined;
+  const ncode = req.params.ncode ? req.params.ncode.toLowerCase() : undefined;
   if (!ncode) {
     return res.status(400).json({ error: 'ncode required' });
   }

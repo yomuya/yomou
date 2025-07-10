@@ -3,10 +3,11 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { authFetch } from './auth.js';
 
+const scrapeAheadCount = ref(1);
 const route = useRoute()
 const ncode = ref(route.params.ncode ?? '')
-const chapterNum = ref(route.params.chapter ? Number(route.params.chapter) : null)
-
+const chapterNum = ref(null)
+const chapter = ref(null)
 
 async function fetchChapter() {
   try {
@@ -14,6 +15,7 @@ async function fetchChapter() {
     if (res.ok) {
       const text = await res.text()
       chapter.value = JSON.parse(text)
+      await UpdateCurrentChapter()
     } else if (res.status === 404) {
       // Try scraping if not found
       const scrapeRes = await authFetch(`/api/syosetu/scrape?ncode=${ncode.value}&chapter=${chapterNum.value}`)
@@ -23,6 +25,7 @@ async function fetchChapter() {
         if (retryRes.ok) {
           const retryText = await retryRes.text()
           chapter.value = JSON.parse(retryText)
+          await UpdateCurrentChapter()
         } else {
           chapter.value = null
         }
@@ -36,7 +39,54 @@ async function fetchChapter() {
     console.error('Network error:', e)
   }
 }
-onMounted(fetchChapter)
+async function scrapeAhead() {
+  if (!ncode.value) return;
+  try {
+    await authFetch('/api/syosetu/scrapeahead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ncode: ncode.value, count: scrapeAheadCount.value })
+    });
+  } catch (e) {
+    // ignore errors for individual chapters
+  }
+}
+
+function onChapterChange() {
+  const chapterKey = `${ncode.value}_chapter`;
+  localStorage.setItem(chapterKey, chapterNum.value);
+}
+
+async function UpdateCurrentChapter(novel, event) {
+  await authFetch('/api/novels/follow', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ncode: ncode.value, chapter: chapterNum.value })
+  });
+  await scrapeAhead();
+}
+
+async function initializeChapter() {
+  const chapterKey = `${ncode.value}_chapter`;
+  const stored = localStorage.getItem(chapterKey);
+  if (stored) {
+    chapterNum.value = Number(stored);
+  } else {
+    // fallback: fetch current_chapter from backend
+    const res = await authFetch(`/api/novels/${ncode.value}`);
+    if (res.ok) {
+      const novel = await res.json();
+      chapterNum.value = novel.current_chapter || 1;
+      localStorage.setItem(chapterKey, chapterNum.value);
+    } else {
+      chapterNum.value = 1;
+    }
+  }
+  fetchChapter();
+}
+
+
+onMounted(initializeChapter)
 </script>
 
 <template>
@@ -47,7 +97,7 @@ onMounted(fetchChapter)
     </label>
     <label>
       Chapter:
-      <input v-model.number="chapterNum" type="number" min="1" style="margin-right: 1em; width: 4em;" />
+      <input v-model.number="chapterNum" type="number" min="1" style="margin-right: 1em; width: 4em;" @change="onChapterChange" />
     </label>
     <button @click="fetchChapter">Load Chapter</button>
   </div>
