@@ -62,32 +62,22 @@ router.get('/scrape', authenticateToken, async (req, res) => {
 router.post('/scrapeahead', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   const ncode = req.body.ncode ? req.body.ncode.toLowerCase() : undefined;
-  const count = parseInt(req.body.count, 10) || 1;
-  if (!ncode || count < 1) {
-    return res.status(400).json({ error: 'Missing ncode or invalid count parameter' });
+  const start = parseInt(req.body.start, 10);
+  const end = parseInt(req.body.end, 10);
+  if (!ncode || isNaN(start) || isNaN(end) || start < 1 || end < start) {
+    return res.status(400).json({ error: 'Missing ncode or invalid start/end parameter' });
   }
-  db.get(
-    `SELECT current_chapter FROM user_novel_follows WHERE user_id = ? AND ncode = ?`,
-    [req.user.id, ncode.toLowerCase()],
-    async (err, row) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      const start = (row?.current_chapter || 0) + 1;
-      const end = start + count;
-      let results = [];
-      for (let ch = start; ch < end; ++ch) {
-        try {
-          await scrapeAndInsertChapter(ncode, ch);
-          results.push({ chapter: ch, success: true });
-        } catch (e) {
-          results.push({ chapter: ch, success: false, error: e.message });
-        }
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
-      res.json({ success: true, results });
+  let results = [];
+  for (let ch = start; ch <= end; ++ch) {
+    try {
+      await scrapeAndInsertChapter(ncode, ch);
+      results.push({ chapter: ch, success: true });
+    } catch (e) {
+      results.push({ chapter: ch, success: false, error: e.message });
     }
-  );
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  }
+  res.json({ success: true, results });
 });
 
 router.get('/chapter', authenticateToken, async (req, res) => {

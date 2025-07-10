@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { authFetch } from './auth.js';
 
-const scrapeAheadCount = ref(1);
+const scrapeRangeStart = ref(1);
+const scrapeRangeEnd = ref(1);
 const scraping = ref(false);
 const novel = ref(null);
 const toc = ref([]);
@@ -19,11 +20,16 @@ async function fetchNovel() {
 
 async function scrapeAhead() {
   if (!novel.value) return;
+  scraping.value = true;
   try {
     await authFetch('/api/syosetu/scrapeahead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ncode: novel.value.ncode, count: scrapeAheadCount.value })
+      body: JSON.stringify({
+        ncode: novel.value.ncode,
+        start: scrapeRangeStart.value,
+        end: scrapeRangeEnd.value
+      })
     });
   } catch (e) {
     // ignore errors for individual chapters
@@ -49,6 +55,15 @@ async function updateChapter(novelObj, event) {
 }
 
 onMounted(fetchNovel);
+onMounted(() => {
+  fetchNovel();
+});
+watch(novel, (val) => {
+  if (val) {
+    scrapeRangeStart.value = val.current_chapter || 1;
+    scrapeRangeEnd.value = val.total_chapters || 1;
+  }
+});
 </script>
 
 <template>
@@ -79,10 +94,12 @@ onMounted(fetchNovel);
         </div>
         <div v-if="novel" style="margin-top: 1em;">
           <label>
-            Scrape ahead:
-            <input v-model.number="scrapeAheadCount" type="number" min="1" style="width: 4em; margin-right: 0.5em;" />
+            Scrape range:
+            <input v-model.number="scrapeRangeStart" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
+            -
+            <input v-model.number="scrapeRangeEnd" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
           </label>
-          <button @click="scrapeAhead" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape ahead' }}</button>
+          <button @click="scrapeAhead" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
         </div>
       </div>
     </div>
