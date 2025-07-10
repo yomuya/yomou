@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { authFetch } from './auth.js';
 
+const scrapeAheadCount = ref(1);
+const scraping = ref(false);
 const novel = ref(null);
 const toc = ref([]);
 const route = useRoute();
@@ -13,6 +15,21 @@ async function fetchNovel() {
   novel.value = await res.json();
   const tocRes = await authFetch(`/api/novels/${ncode}/toc`);
   toc.value = await tocRes.json();
+}
+
+async function scrapeAhead() {
+  if (!novel.value) return;
+  try {
+    await authFetch('/api/syosetu/scrapeahead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ncode: novel.value.ncode, count: scrapeAheadCount.value })
+    });
+  } catch (e) {
+    // ignore errors for individual chapters
+  }
+  await fetchNovel();
+  scraping.value = false;
 }
 
 onMounted(fetchNovel);
@@ -32,6 +49,13 @@ onMounted(fetchNovel);
         </div>
         <div v-else>
           <p>Loading...</p>
+        </div>
+        <div v-if="novel" style="margin-top: 1em;">
+          <label>
+            Scrape ahead:
+            <input v-model.number="scrapeAheadCount" type="number" min="1" style="width: 4em; margin-right: 0.5em;" />
+          </label>
+          <button @click="scrapeAhead" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape ahead' }}</button>
         </div>
       </div>
     </div>

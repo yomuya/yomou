@@ -75,6 +75,24 @@ db.serialize(() => {
       FOREIGN KEY (ncode) REFERENCES novels(ncode)
     )
   `);
+
+  // --- ALTER TABLES ON STARTUP FOR MIGRATIONS ---
+  db.run(`
+    UPDATE novels SET ncode = LOWER(ncode)
+    WHERE ncode != LOWER(ncode)
+  `);
+  db.run(`
+    UPDATE chapters SET ncode = LOWER(ncode)
+    WHERE ncode != LOWER(ncode)
+  `);
+  db.run(`
+    UPDATE user_novel_follows SET ncode = LOWER(ncode)
+    WHERE ncode != LOWER(ncode)
+  `);
+  db.run(`
+    UPDATE user_stats SET ncode = LOWER(ncode)
+    WHERE ncode != LOWER(ncode)
+  `);
 });
 
 module.exports = {

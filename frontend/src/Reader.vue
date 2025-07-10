@@ -6,7 +6,7 @@ import { authFetch } from './auth.js';
 const route = useRoute()
 const ncode = ref(route.params.ncode ?? '')
 const chapterNum = ref(route.params.chapter ? Number(route.params.chapter) : null)
-
+const chapter = ref(null)
 
 async function fetchChapter() {
   try {
