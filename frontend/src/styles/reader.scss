@@ -1,0 +1,28 @@
+.content {
+  max-width: 60vw;
+  margin: 0 auto;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+.controls {
+  margin-bottom: 1em;
+}
+.controls label {
+  margin-right: 1em;
+}
+.controls input[type="text"] {
+  margin-right: 1em;
+}
+.controls input[type="number"] {
+  margin-right: 1em;
+  width: 4em;
+}
+.section {
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 1em;
+  padding-bottom: 1em;
+}
+.content h1 {
+  margin-bottom: 1em;
+}

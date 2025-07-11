@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { authFetch } from './auth.js';
 import Table from './components/Table.vue';
+import { followNovel } from './scripts/database.js';
 
 const ncode = ref('n4185ci');
 const output = ref('Loading...');
@@ -14,9 +15,9 @@ async function fetchNovel(ncodeValue) {
   try {
     const res = await authFetch(`/api/syosetu?ncode=${encodeURIComponent(ncodeValue)}`);
     const full_data = await res.json();
-    console.log('API response:', full_data);
     const data = full_data[1];
     output.value = JSON.stringify(data, null, 2);
+
     if (Array.isArray(data) && data.length === 1 && typeof data[0] === 'object') {
       outputTable.value = data[0];
       showTrackBtn.value = true;
@@ -32,18 +33,9 @@ async function fetchNovel(ncodeValue) {
   }
 }
 
-function lookupNcode() {
-  fetchNovel(ncode.value || 'n4185ci');
-}
-
 async function trackNovel() {
   try {
-    const res = await authFetch(`/api/novels/follow`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ncode: ncode.value || 'n4185ci' })
-    });
-    const text = await res.text();
+    const text = await fetchNcode(ncode.value || 'n4185ci');
     trackMsg.value += text;
   } catch (err) {
     trackMsg.value += 'Error: ' + err;
@@ -58,7 +50,7 @@ fetchNovel(ncode.value);
   <div>
     <h1>Novel Lookup</h1>
     <input type="text" v-model="ncode" placeholder="Enter ncode (e.g. n4185ci)">
-    <button @click="lookupNcode">Lookup Ncode</button>
+    <button @click="fetchNovel(ncode.value || 'n4185ci')">Lookup Ncode</button>
     <button v-show="showTrackBtn" @click="trackNovel">Track Novel</button>
     <p v-show="trackMsg" v-html="trackMsg"></p>
     <Table
@@ -78,7 +70,6 @@ fetchNovel(ncode.value);
         <span v-else>{{ item.value }}</span>
       </template>
     </Table>
-    <pre v-else>{{ output }}</pre>
     <pre v-else>{{ output }}</pre>
   </div>
 </template>
