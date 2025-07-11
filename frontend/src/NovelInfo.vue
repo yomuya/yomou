@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { authFetch } from './auth.js';
+import { fetchNovel, fetchNovelToC, updateCurrentChapter } from './scripts/database.js'
+import { scrapeAhead } from './scripts/scrape.js';
+import { setNcodeChapter } from './scripts/cache.js'
 
 const scrapeRangeStart = ref(1);
 const scrapeRangeEnd = ref(1);
@@ -10,54 +12,28 @@ const novel = ref(null);
 const toc = ref([]);
 const route = useRoute();
 
-async function fetchNovel() {
-  const ncode = route.params.ncode;
-  const res = await authFetch(`/api/novels/${ncode}`);
-  novel.value = await res.json();
-  const tocRes = await authFetch(`/api/novels/${ncode}/toc`);
-  toc.value = await tocRes.json();
-}
+onMounted(async () => {
+  novel.value = await fetchNovel(route.params.ncode);
+  toc.value = await fetchNovelToC(route.params.ncode);
+});
 
-async function scrapeAhead() {
+
+async function handleScrapeAhead() {
   if (!novel.value) return;
   scraping.value = true;
   try {
-    await authFetch('/api/syosetu/scrapeahead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ncode: novel.value.ncode,
-        start: scrapeRangeStart.value,
-        end: scrapeRangeEnd.value
-      })
+    const updatedNovel = await scrapeAhead({
+      ncode: novel.value.ncode,
+      start: scrapeRangeStart.value,
+      end: scrapeRangeEnd.value
     });
+    novel.value = updatedNovel;
   } catch (e) {
     // ignore errors for individual chapters
   }
-  await fetchNovel();
   scraping.value = false;
 }
 
-function setReaderChapter(chapter) {
-  if (novel.value && novel.value.ncode) {
-    localStorage.setItem(`${novel.value.ncode}_chapter`, chapter);
-  }
-}
-
-async function updateChapter(novelObj, event) {
-  const ncode = novelObj.ncode;
-  const chapter = novelObj.current_chapter;
-  await authFetch('/api/novels/follow', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ncode, chapter }),
-  });
-}
-
-onMounted(fetchNovel);
-onMounted(() => {
-  fetchNovel();
-});
 watch(novel, (val) => {
   if (val) {
     scrapeRangeStart.value = val.current_chapter || 1;
@@ -83,7 +59,7 @@ watch(novel, (val) => {
               min="1"
               :max="novel.total_chapters"
               style="width: 4em; margin-right: 0.5em;"
-              @change="updateChapter(novel, $event)"
+              @change="updateCurrentChapter(novel.ncode, novel.current_chapter)"
             />
             / {{ novel.total_chapters }}
           </p>
@@ -99,7 +75,7 @@ watch(novel, (val) => {
             -
             <input v-model.number="scrapeRangeEnd" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
           </label>
-          <button @click="scrapeAhead" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
+          <button @click="handleScrapeAhead" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
         </div>
       </div>
     </div>
@@ -107,7 +83,7 @@ watch(novel, (val) => {
       <h3>Scraped Table of Contents</h3>
       <ul>
         <li v-for="ch in toc" :key="ch.chapter">
-          <router-link :to="`/reader/${novel.ncode}`" @click.native="setReaderChapter(ch.chapter)">
+          <router-link :to="`/reader/${novel.ncode}`" @click.native="setNcodeChapter(novel.ncode, ch.chapter)">
             {{ ch.title || 'Untitled' }}
           </router-link>
         </li>

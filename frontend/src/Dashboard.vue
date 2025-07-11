@@ -1,41 +1,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { authFetch } from './auth.js';
 import Table from './components/Table.vue';
 const router = useRouter();
+import { loadFollows } from './scripts/database.js'
 
-const users = ref([]);
 const trackedNovels = ref([]);
+
+onMounted(async () => {
+  const result = await loadFollows();
+  trackedNovels.value = result.value;
+});
 
 function goToNovel(novel) {
   router.push({ path: `/novel/${novel.ncode}` });
 }
 
-async function loadFollows() {
-  try {
-    const res = await authFetch('/api/novels/follow');
-    if (res.status === 401 || res.status === 403) {
-      trackedNovels.value = [];
-    } else {
-      trackedNovels.value = await res.json();
-    }
-  } catch (e) {
-    trackedNovels.value = [];
-    console.error('Failed to load follows', e);
-  }
-}
-async function updateChapter(novel, event) {
-  const ncode = novel.ncode;
-  const chapter = parseInt(event.target.value, 10) || novel.current_chapter;
-  await authFetch('/api/novels/follow', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ncode, chapter }),
-  });
-}
 
-onMounted(loadFollows)
 </script>
 
 <template>
@@ -55,14 +36,6 @@ onMounted(loadFollows)
       rowKey="ncode"
       @row-click="goToNovel"
     >
-      <template #cell-current_chapter="{ item }">
-        <input
-          v-model="item.current_chapter"
-          type="number"
-          class="table-input"
-          @change="updateChapter(item, $event)"
-        />
-      </template>
     </Table>
     <div v-else>
       No tracked novels
