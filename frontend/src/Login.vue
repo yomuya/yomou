@@ -48,7 +48,6 @@ function login() {
       alert('Login failed: ' + response.error);
     } else {
       localStorage.setItem('token', response.token);
-      alert('Welcome, ' + response.user.name + '!');
       window.location.href = '/';
     }
   });

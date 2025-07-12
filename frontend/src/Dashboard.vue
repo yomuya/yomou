@@ -16,6 +16,10 @@ function goToNovel(novel) {
   router.push({ path: `/novel/${novel.ncode}` });
 }
 
+function goToReader(novel) {
+  router.push({ path: `/reader/${novel.ncode}` });
+}
+
 
 </script>
 
@@ -30,12 +34,20 @@ function goToNovel(novel) {
         { key: 'ncode', label: 'Novel Code' },
         { key: 'title', label: 'Title' },
         { key: 'author', label: 'Author' },
-        { key: 'current_chapter', label: 'Current Chapter' },
-        { key: 'total_chapters', label: 'Total Chapters' }
+        { key: 'progress', label: 'Progress' }
       ]"
       rowKey="ncode"
       @row-click="goToNovel"
     >
+      <template #cell-progress="{ item }">
+        <span style="cursor:pointer; color:blue;" @click.stop="goToReader(item)">
+          {{ item.current_chapter }}
+        </span>
+        /
+        <span style="cursor:pointer; color:blue;" @click.stop="goToReader(item)">
+          {{ item.total_chapters }}
+        </span>
+      </template>
     </Table>
     <div v-else>
       No tracked novels

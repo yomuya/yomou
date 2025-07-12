@@ -70,7 +70,7 @@ export async function followNovel(ncode) {
   const res = await authFetch(`/api/novels/follow`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ncode: ncode || 'n4185ci' })
+    body: JSON.stringify({ ncode: ncode })
   });
   return await res.text();
 }

@@ -16,6 +16,7 @@ async function fetchNovel(ncodeValue) {
     const res = await authFetch(`/api/syosetu?ncode=${encodeURIComponent(ncodeValue)}`);
     const full_data = await res.json();
     const data = full_data[1];
+    console.log(full_data[0]);
     output.value = JSON.stringify(data, null, 2);
 
     if (Array.isArray(data) && data.length === 1 && typeof data[0] === 'object') {
@@ -35,7 +36,7 @@ async function fetchNovel(ncodeValue) {
 
 async function trackNovel() {
   try {
-    const text = await fetchNcode(ncode.value || 'n4185ci');
+    const text = await followNovel(ncode.value);
     trackMsg.value += text;
   } catch (err) {
     trackMsg.value += 'Error: ' + err;
@@ -50,7 +51,7 @@ fetchNovel(ncode.value);
   <div>
     <h1>Novel Lookup</h1>
     <input type="text" v-model="ncode" placeholder="Enter ncode (e.g. n4185ci)">
-    <button @click="fetchNovel(ncode.value || 'n4185ci')">Lookup Ncode</button>
+    <button @click="fetchNovel(ncode)">Lookup Ncode</button>
     <button v-show="showTrackBtn" @click="trackNovel">Track Novel</button>
     <p v-show="trackMsg" v-html="trackMsg"></p>
     <Table

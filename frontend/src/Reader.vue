@@ -32,14 +32,10 @@ onMounted(initializeChapter)
 <template>
   <div class="controls">
     <label>
-      Ncode:
-      <input v-model="ncode" type="text" />
+        <button @click="chapterNum > 1 && (chapterNum--, setNcodeChapter(ncode, chapterNum), fetchChapter())">Previous</button>
+        <input v-model.number="chapterNum" type="number" min="1" @change="setNcodeChapter(ncode, chapterNum); fetchChapter()" />
+        <button @click="chapterNum++, setNcodeChapter(ncode, chapterNum), fetchChapter()">Next</button>
     </label>
-    <label>
-      Chapter:
-      <input v-model.number="chapterNum" type="number" min="1" @change="setNcodeChapter(ncode, chapterNum)" />
-    </label>
-    <button @click="fetchChapter">Load Chapter</button>
   </div>
 
   <div class="content" v-if="chapter">
@@ -56,6 +52,14 @@ onMounted(initializeChapter)
   </div>
   <div v-else>
     <p>Loading...</p>
+  </div>
+
+  <div class="controls">
+    <label>
+        <button @click="chapterNum > 1 && (chapterNum--, setNcodeChapter(ncode, chapterNum), fetchChapter())">Previous</button>
+        <input v-model.number="chapterNum" type="number" min="1" @change="setNcodeChapter(ncode, chapterNum); fetchChapter()" />
+        <button @click="chapterNum++, setNcodeChapter(ncode, chapterNum), fetchChapter()">Next</button>
+    </label>
   </div>
 </template>
 
