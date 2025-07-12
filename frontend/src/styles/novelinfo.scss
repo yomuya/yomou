@@ -2,16 +2,16 @@
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: flex-start;
   margin: 2rem 0;
 }
 
 .novel-info-row {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 2.5rem;
-  align-items: flex-start;
+  align-items: stretch;
   width: 100%;
 }
 
@@ -21,8 +21,8 @@
   padding: 2.5rem 2rem;
   width: 100%;
   min-width: 260px;
-  max-width: 420px;
-  height: 260px;
+  max-width: 600px;
+  // height: 260px;
   border: 1px solid #e5e7eb;
   background: transparent;
 }
@@ -91,6 +91,35 @@
   color: #1d4ed8;
   text-decoration: underline;
 }
+
+.toc-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.7em;
+
+  &--bottom {
+    margin-bottom: 0;
+    margin-top: 0.7em;
+  }
+}
+
+.toc-nav-btn {
+  cursor: pointer;
+  color: #2563eb;
+  margin: 0;
+  user-select: none;
+  transition: opacity 0.15s;
+  opacity: 1;
+  pointer-events: auto;
+
+  &.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
 @media (max-width: 700px) {
   .novel-info-row {
     flex-direction: column;
@@ -104,7 +133,7 @@
     padding: 1.2rem 1rem;
     margin-right: 0;
     margin-bottom: 1rem;
-    width: clamp(70px, 30vw, 90px);
-    height: clamp(105px, 45vw, 135px);
+    // width: clamp(70px, 30vw, 90px);
+    // height: clamp(105px, 45vw, 135px);
   }
 }

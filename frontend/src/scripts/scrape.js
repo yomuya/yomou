@@ -5,7 +5,7 @@ export async function scrape(ncode, chapter) {
   if (!chapter) return;
   try {
     await authFetch('/api/syosetu/scrape', {
-      method: 'GET',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ncode: ncode, count: chapter })
     });
@@ -15,7 +15,7 @@ export async function scrape(ncode, chapter) {
 }
 export async function scrapeAhead({ ncode, start, end }) {
   await authFetch('/api/syosetu/scrapeahead', {
-    method: 'GET',
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ncode, start, end })
   });

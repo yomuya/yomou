@@ -45,7 +45,7 @@ async function scrapeAndInsertChapter(ncode, chapterNum) {
   return { url, title };
 }
 
-router.get('/scrape', authenticateToken, async (req, res) => {
+router.post('/scrape', authenticateToken, async (req, res) => {
   const ncode = req.query.ncode ? req.query.ncode.toLowerCase() : undefined;
   const chapterNum = req.query.chapter;
   if (!ncode || !chapterNum) {
