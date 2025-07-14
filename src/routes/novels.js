@@ -135,8 +135,6 @@ function runRoutineUpdate() {
     if (!err && rows && rows.length > 0) {
       const ncodes = rows.map(r => r.ncode);
       await updateNovelsByNcodes(ncodes);
-      console.log("updated");
-      console.log(ncodes);
     }
   });
 }
