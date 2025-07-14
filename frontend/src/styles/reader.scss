@@ -28,6 +28,14 @@
   transition: background 0.15s;
 }
 
+.controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #888 !important;
+  color: #eee !important;
+  border-color: #aaa !important;
+}
+
 .controls button:hover {
   background: var(--reader-btn-hover-bg, #31343b);
 }
