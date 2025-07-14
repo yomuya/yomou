@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { authFetch } from './auth.js';
 import { scrape } from './scripts/scrape.js';
-import { setNcodeChapter, initializeChapter as initializeChapterCache } from './scripts/cache.js'
+import { setNcodeChapter, initializeChapter as initializeChapterCache, setNcodeTotalChapters, initializeTotalChapters as initializeTotalChaptersCache } from './scripts/cache.js'
 import { fetchChapter as fetchChapterDb, updateCurrentChapter } from './scripts/database.js';
 
 const scrapeAheadCount = ref(1);
@@ -11,11 +11,13 @@ const route = useRoute()
 const ncode = ref(route.params.ncode ?? '')
 const chapterNum = ref(null)
 const chapter = ref(null)
+const totalChapters = ref(null)
 
 async function fetchChapter() {
   const result = await fetchChapterDb(ncode.value, chapterNum.value, scrapeAheadCount.value)
   chapter.value = result
-  if (result) {
+  if (result && (chapterNum.value < 1 || chapterNum.value > totalChapters.value)) {
+    totalChapters.value = result.total_chapters || totalChapters.value
     await updateCurrentChapter(ncode.value, chapterNum.value)
     await scrape(ncode.value, chapterNum.value + scrapeAheadCount.value);
   }
@@ -23,6 +25,7 @@ async function fetchChapter() {
 
 async function initializeChapter() {
   chapterNum.value = await initializeChapterCache(ncode.value, chapterNum.value);
+  totalChapters.value = await initializeTotalChaptersCache(ncode.value);
   fetchChapter();
 }
 
@@ -32,9 +35,15 @@ onMounted(initializeChapter)
 <template>
   <div class="controls">
     <label>
-        <button @click="chapterNum > 1 && (chapterNum--, setNcodeChapter(ncode, chapterNum), fetchChapter())">Previous</button>
-        <input v-model.number="chapterNum" type="number" min="1" @change="setNcodeChapter(ncode, chapterNum); fetchChapter()" />
-        <button @click="chapterNum++, setNcodeChapter(ncode, chapterNum), fetchChapter()">Next</button>
+      <button
+        :disabled="chapterNum <= 1"
+        @click="chapterNum > 1 ? (chapterNum--, setNcodeChapter(ncode, chapterNum), fetchChapter()) : null"
+      >Previous</button>
+      <input v-model.number="chapterNum" type="number" min="1" :max="totalChapters" @change="setNcodeChapter(ncode, chapterNum); fetchChapter()" />
+      <button
+        :disabled="chapterNum >= totalChapters"
+        @click="chapterNum < totalChapters ? (chapterNum++, setNcodeChapter(ncode, chapterNum), fetchChapter()) : null"
+      >Next</button>
     </label>
   </div>
 
@@ -56,9 +65,15 @@ onMounted(initializeChapter)
 
   <div class="controls">
     <label>
-        <button @click="chapterNum > 1 && (chapterNum--, setNcodeChapter(ncode, chapterNum), fetchChapter())">Previous</button>
-        <input v-model.number="chapterNum" type="number" min="1" @change="setNcodeChapter(ncode, chapterNum); fetchChapter()" />
-        <button @click="chapterNum++, setNcodeChapter(ncode, chapterNum), fetchChapter()">Next</button>
+      <button
+        :disabled="chapterNum <= 1"
+        @click="chapterNum > 1 ? (chapterNum--, setNcodeChapter(ncode, chapterNum), fetchChapter()) : null"
+      >Previous</button>
+      <input v-model.number="chapterNum" type="number" min="1" :max="totalChapters" @change="setNcodeChapter(ncode, chapterNum); fetchChapter()" />
+      <button
+        :disabled="chapterNum >= totalChapters"
+        @click="chapterNum < totalChapters ? (chapterNum++, setNcodeChapter(ncode, chapterNum), fetchChapter()) : null"
+      >Next</button>
     </label>
   </div>
 </template>

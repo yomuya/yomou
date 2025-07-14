@@ -74,6 +74,83 @@ router.post('/follow', authenticateToken, async (req, res) => {
   }
 });
 
+async function updateNovelsByNcodes(ncodes) {
+  if (!ncodes || !Array.isArray(ncodes) || ncodes.length === 0) {
+    return [];
+  }
+  ncodes = ncodes.map(n => n.toLowerCase());
+  const combinedNcodes = ncodes.join('-');
+  try {
+    const response = await fetch(`https://api.syosetu.com/novelapi/api/?ncode=${combinedNcodes}&out=json`);
+    const data = await response.json();
+    const updated = [];
+    for (let i = 1; i < data.length; i++) {
+      const novel = data[i];
+      if (novel.ncode && novel.title && novel.writer && novel.general_all_no) {
+        db.run(
+          `INSERT OR REPLACE INTO novels (ncode, title, author, total_chapters, last_checked)
+           VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+          [novel.ncode.toLowerCase(), novel.title, novel.writer, novel.general_all_no]
+        );
+        updated.push({
+          ncode: novel.ncode.toLowerCase(),
+          title: novel.title,
+          author: novel.writer,
+          total_chapters: novel.general_all_no,
+          link: `https://ncode.syosetu.com/${novel.ncode.toLowerCase()}`
+        });
+      }
+    }
+    return updated;
+  } catch (err) {
+    return [];
+  }
+}
+
+let lastUpdateTime = 0;
+let minutes = 10;
+
+router.post('/update', authenticateToken, async (req, res) => {
+  const now = Date.now();
+  if (now - lastUpdateTime < minutes * 60 * 1000) {
+    return res.status(429).json({ error: 'Updated within the last 10 minutes.' });
+  }
+  lastUpdateTime = now;
+
+  let ncodes = req.body.ncodes;
+  if (!ncodes || !Array.isArray(ncodes) || ncodes.length === 0) {
+    return res.status(400).json({ error: 'ncodes (array) required' });
+  }
+  const updated = await updateNovelsByNcodes(ncodes);
+  res.json({ updated });
+});
+
+function runRoutineUpdate() {
+  const now = Date.now();
+  if (now - lastUpdateTime < minutes * 60 * 1000) {
+    return;
+  }
+  lastUpdateTime = now;
+  db.all('SELECT ncode FROM novels', async (err, rows) => {
+    if (!err && rows && rows.length > 0) {
+      const ncodes = rows.map(r => r.ncode);
+      await updateNovelsByNcodes(ncodes);
+      console.log("updated");
+      console.log(ncodes);
+    }
+  });
+}
+
+const updatePeriod = process.env.NOVEL_UPDATE_MINUTES ? parseInt(process.env.NOVEL_UPDATE_MINUTES, 10) : 60;
+const now = new Date();
+const msToNextPeriod = (updatePeriod - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
+
+setTimeout(() => {
+  runHourlyUpdate();
+  setInterval(runRoutineUpdate, updatePeriod * 60 * 1000);
+}, msToNextPeriod);
+
+
 router.get('/:ncode/toc', authenticateToken, async (req, res) => {
   const ncode = req.params.ncode ? req.params.ncode.toLowerCase() : undefined;
   if (!ncode) {
