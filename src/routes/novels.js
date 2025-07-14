@@ -144,7 +144,7 @@ const now = new Date();
 const msToNextPeriod = (updatePeriod - now.getMinutes()) * 60 * 1000 - now.getSeconds() * 1000 - now.getMilliseconds();
 
 setTimeout(() => {
-  runHourlyUpdate();
+  runRoutineUpdate();
   setInterval(runRoutineUpdate, updatePeriod * 60 * 1000);
 }, msToNextPeriod);
 
