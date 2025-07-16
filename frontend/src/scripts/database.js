@@ -52,12 +52,12 @@ export async function fetchChapter(ncode, chapterNum) {
 }
 
 export async function updateCurrentChapter(ncode, chapter, totalChapters) {
-  await setNovelProgress(ncode, chapter, totalChapters);
   await authFetch('/api/novels/follow', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ncode: ncode, chapter: chapter })
   });
+  await setNovelProgress(ncode, chapter, totalChapters);
 }
 
 export async function followNovel(ncode) {

@@ -62,31 +62,23 @@ export async function getAllChaptersFromIndexedDB(ncode) {
 }
 
 export async function setNovelProgress(ncode, chapter, totalChapters) {
-  const db = await openNovelDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('progress', 'readwrite');
-    const store = tx.objectStore('progress');
-    store.put({ ncode, progress: { chapter: Number(chapter), totalChapters: Number(totalChapters) } });
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
+  localStorage.setItem(
+    `novel-progress-${ncode}`,
+    JSON.stringify({ chapter: Number(chapter), totalChapters: Number(totalChapters) })
+  );
 }
 
 export async function getNovelProgress(ncode) {
-  const db = await openNovelDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('progress', 'readonly');
-    const store = tx.objectStore('progress');
-    const req = store.get(ncode);
-    req.onsuccess = () => {
-      if (req.result) {
-        resolve({ chapter: req.result.chapter, totalChapters: req.result.totalChapters });
-      } else {
-        resolve(null);
-      }
-    };
-    req.onerror = () => resolve(null);
-  });
+  const data = localStorage.getItem(`novel-progress-${ncode}`);
+  if (data) {
+    try {
+      const obj = JSON.parse(data);
+      return { chapter: obj.chapter, totalChapters: obj.totalChapters };
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 
 export async function initializeChapter(ncode, chapter) {

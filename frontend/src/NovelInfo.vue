@@ -119,12 +119,12 @@ watch(tocDisplayCount, () => {
           v-for="ch in toc.slice(tocDisplayStart, tocDisplayStart + tocDisplayCount)"
           :key="ch.chapter"
         >
-          <router-link
-            :to="`/reader/${novel.ncode}`"
-            @click="setNovelProgress(novel.ncode, Number(ch.chapterNum), novel.total_chapters).then(() => { novel.current_chapter = Number(ch.chapterNum) })"
-            >
-            {{ ch.title || 'Untitled' }}
-           </router-link>
+        <router-link
+          :to="`/reader/${novel.ncode}`"
+          @click.prevent="setNovelProgress(novel.ncode, Number(ch.chapterNum), novel.total_chapters)"
+        >
+          {{ ch.title || 'Untitled' }}
+        </router-link>
         </li>
         <li v-if="toc.length > tocDisplayCount" class="toc-nav-row toc-nav-row--bottom">
           <p
