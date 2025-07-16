@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchNovel, fetchNovelToC, updateCurrentChapter } from './scripts/database.js'
 import { scrapeAhead } from './scripts/scrape.js';
-import { setNcodeChapter } from './scripts/cache.js'
+import { initializeChapter, initializeTotalChapters, setNovelProgress } from './scripts/cache.js'
 
 const scrapeRangeStart = ref(1);
 const scrapeRangeEnd = ref(1);
@@ -70,7 +70,7 @@ watch(tocDisplayCount, () => {
             min="1"
             :max="novel.total_chapters"
             style="width: 4em; margin-right: 0.5em;"
-            @change="updateCurrentChapter(novel.ncode, novel.current_chapter)"
+            @change="updateCurrentChapter(novel.ncode, Number(novel.current_chapter), novel.total_chapters)"
           />
           / {{ novel.total_chapters }}
         </p>
@@ -119,9 +119,12 @@ watch(tocDisplayCount, () => {
           v-for="ch in toc.slice(tocDisplayStart, tocDisplayStart + tocDisplayCount)"
           :key="ch.chapter"
         >
-          <router-link :to="`/reader/${novel.ncode}`" @click.native="setNcodeChapter(novel.ncode, ch.chapter)">
-            {{ ch.title || 'Untitled' }}
-          </router-link>
+        <router-link
+          :to="`/reader/${novel.ncode}`"
+          @click.prevent="setNovelProgress(novel.ncode, Number(ch.chapterNum), novel.total_chapters)"
+        >
+          {{ ch.title || 'Untitled' }}
+        </router-link>
         </li>
         <li v-if="toc.length > tocDisplayCount" class="toc-nav-row toc-nav-row--bottom">
           <p

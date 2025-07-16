@@ -38,20 +38,6 @@ db.serialize(() => {
     )
   `);
   db.run(`
-    CREATE TABLE IF NOT EXISTS chapters (
-      ncode TEXT NOT NULL,
-      chapter_number INTEGER NOT NULL,
-      title TEXT,
-      preface TEXT,
-      body TEXT,
-      afterword TEXT,
-      length_chars INTEGER,
-      fetched_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (ncode, chapter_number),
-      FOREIGN KEY (ncode) REFERENCES novels(ncode)
-    )
-  `);
-  db.run(`
     CREATE TABLE IF NOT EXISTS user_novel_follows (
       user_id INTEGER NOT NULL,
       ncode TEXT NOT NULL,
@@ -78,20 +64,7 @@ db.serialize(() => {
 
   // --- ALTER TABLES ON STARTUP FOR MIGRATIONS ---
   db.run(`
-    UPDATE novels SET ncode = LOWER(ncode)
-    WHERE ncode != LOWER(ncode)
-  `);
-  db.run(`
-    UPDATE chapters SET ncode = LOWER(ncode)
-    WHERE ncode != LOWER(ncode)
-  `);
-  db.run(`
-    UPDATE user_novel_follows SET ncode = LOWER(ncode)
-    WHERE ncode != LOWER(ncode)
-  `);
-  db.run(`
-    UPDATE user_stats SET ncode = LOWER(ncode)
-    WHERE ncode != LOWER(ncode)
+    DROP TABLE IF EXISTS chapters;
   `);
 });
 

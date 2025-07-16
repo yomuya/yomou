@@ -25,9 +25,9 @@ router.get('/', authenticateToken, async (req, res) => {
   }
 });
 
-async function scrapeAndInsertChapter(ncode, chapterNum) {
+async function scrapeChapterData(ncode, chapterNum) {
   const url = `https://ncode.syosetu.com/${encodeURIComponent(ncode)}/${encodeURIComponent(chapterNum)}`;
-  const response = await fetch(url);
+  const response = await fetch(url, headers);
   const html = await response.text();
   const $ = cheerio.load(html);
 
@@ -37,12 +37,18 @@ async function scrapeAndInsertChapter(ncode, chapterNum) {
   const afterwordText = $('div.p-novel__text--afterword').first().text().trim();
   const len = prefaceText.length + chapterText.length + afterwordText.length;
 
-  db.run(
-    `INSERT OR REPLACE INTO chapters (ncode, chapter_number, title, preface, body, afterword, length_chars)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [ncode, chapterNum, title, prefaceText, chapterText, afterwordText, len]
-  );
-  return { url, title };
+  return {
+    ncode,
+    chapterNum: chapterNum,
+    ...{
+      title,
+      preface: prefaceText,
+      body: chapterText,
+      afterword: afterwordText,
+      length_chars: len,
+      url 
+    }
+  };
 }
 
 router.post('/scrape', authenticateToken, async (req, res) => {
@@ -52,8 +58,8 @@ router.post('/scrape', authenticateToken, async (req, res) => {
     return res.status(400).json({ error: 'Missing ncode or chapter parameter' });
   }
   try {
-    await scrapeAndInsertChapter(ncode, chapterNum);
-    res.json({success: true});
+    const chapterData = await scrapeChapterData(ncode, Number(chapterNum));
+    res.json(chapterData);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -70,41 +76,14 @@ router.post('/scrapeahead', authenticateToken, async (req, res) => {
   let results = [];
   for (let ch = start; ch <= end; ++ch) {
     try {
-      await scrapeAndInsertChapter(ncode, ch);
-      results.push({ chapter: ch, success: true });
+      const chapterData = await scrapeChapterData(ncode, ch);
+      results.push({ chapter: ch, success: true, data: chapterData });
     } catch (e) {
       results.push({ chapter: ch, success: false, error: e.message });
     }
     await new Promise(resolve => setTimeout(resolve, 1500));
   }
   res.json({ success: true, results });
-});
-
-router.get('/chapter', authenticateToken, async (req, res) => {
-  const ncode = req.query.ncode ? req.query.ncode.toLowerCase() : undefined;
-  const chapterNum = req.query.chapter;
-  if (!ncode || !chapterNum) {
-    return res.status(400).json({ error: 'Missing ncode or chapter parameter' });
-  }
-  db.get(
-    `SELECT * FROM chapters WHERE ncode = ? AND chapter_number = ?`,
-    [ncode, chapterNum],
-    async (err, row) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (!row) {
-        return res.status(404).json({ error: 'Chapter not found' });
-      }
-      res.json(row);
-
-      const nextChapter = Number(chapterNum) + 1;
-      try {
-        await scrapeAndInsertChapter(ncode, nextChapter);
-      } catch (e) {
-      }
-    }
-  );
 });
 
 

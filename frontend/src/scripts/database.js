@@ -1,14 +1,15 @@
 import { ref } from 'vue';
 import { authFetch } from '../auth.js';
+import { setNovelProgress, getChapterFromIndexedDB, saveChapterToIndexedDB, getAllChaptersFromIndexedDB } from './cache.js'
 
 export async function fetchNovel(ncode) {
   const res = await authFetch(`/api/novels/${ncode}`);
   return await res.json();
 }
-// NAME TO BE CHANGED LATER
+
 export async function fetchNovelToC(ncode) {
-  const tocRes = await authFetch(`/api/novels/${ncode}/toc`);
-  return await tocRes.json();
+  const chapters = await getAllChaptersFromIndexedDB(ncode);
+  return chapters;
 }
 
 
@@ -28,28 +29,20 @@ export async function loadFollows() {
   return trackedNovels;
 }
 
-export async function fetchChapter(ncode, chapterNum, scrapeAheadCount = 1) {
+export async function fetchChapter(ncode, chapterNum) {
   try {
-    const res = await authFetch(`/api/syosetu/chapter?ncode=${ncode}&chapter=${chapterNum}`)
+    const chapter = await getChapterFromIndexedDB(ncode, Number(chapterNum));
+    if (chapter) {
+      return chapter;
+    }
+    const res = await authFetch(`/api/syosetu/scrape?ncode=${ncode}&chapter=${Number(chapterNum)}`, { method: 'POST' })
     if (res.ok) {
       const text = await res.text()
-      return JSON.parse(text)
-    } else if (res.status === 404) {
-      // Try scraping if not found
-      const scrapeRes = await authFetch(`/api/syosetu/scrape?ncode=${ncode}&chapter=${chapterNum}`)
-      if (scrapeRes.ok) {
-        // After scraping, try fetching again
-        const retryRes = await authFetch(`/api/syosetu/chapter?ncode=${ncode}&chapter=${chapterNum}`)
-        if (retryRes.ok) {
-          const retryText = await retryRes.text()
-          return JSON.parse(retryText)
-        } else {
-          return null
-        }
-      } else {
-        return null
-      }
-    } else {
+      const chapterData = JSON.parse(text)
+      await saveChapterToIndexedDB(ncode, Number(chapterNum), chapterData);
+      return chapterData
+    } 
+    else {
       return null
     }
   } catch (e) {
@@ -58,12 +51,13 @@ export async function fetchChapter(ncode, chapterNum, scrapeAheadCount = 1) {
   }
 }
 
-export async function updateCurrentChapter(ncode, chapter) {
+export async function updateCurrentChapter(ncode, chapter, totalChapters) {
   await authFetch('/api/novels/follow', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ncode: ncode, chapter: chapter })
   });
+  await setNovelProgress(ncode, chapter, totalChapters);
 }
 
 export async function followNovel(ncode) {

@@ -149,26 +149,6 @@ setTimeout(() => {
 }, msToNextPeriod);
 
 
-router.get('/:ncode/toc', authenticateToken, async (req, res) => {
-  const ncode = req.params.ncode ? req.params.ncode.toLowerCase() : undefined;
-  if (!ncode) {
-    return res.status(400).json({ error: 'ncode required' });
-  }
-  db.all(
-    `SELECT chapter_number AS chapter, title FROM chapters WHERE ncode = ? ORDER BY chapter_number ASC`,
-    [ncode],
-    (err, rows) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (!rows || rows.length === 0) {
-        return res.status(404).json({ error: 'Chapter not found' });
-      }
-      res.json(rows);
-    }
-  );
-});
-
 router.get('/:ncode', authenticateToken, async (req, res) => { 
   const userId = req.user.id;
   const ncode = req.params.ncode ? req.params.ncode.toLowerCase() : undefined;
