@@ -8,9 +8,6 @@ function openNovelDB() {
       if (!db.objectStoreNames.contains('chapters')) {
         db.createObjectStore('chapters', { keyPath: ['ncode', 'chapterNum'] });
       }
-      if (!db.objectStoreNames.contains('progress')) {
-        db.createObjectStore('progress', { keyPath: 'ncode' });
-      }
     };
     request.onsuccess = function (event) {
       resolve(event.target.result);
@@ -23,7 +20,6 @@ function openNovelDB() {
 
 export async function saveChapterToIndexedDB(ncode, chapterNum, data) {
   const db = await openNovelDB();
-  console.log('Saving:', ncode, chapterNum);
   return new Promise((resolve, reject) => {
     const tx = db.transaction('chapters', 'readwrite');
     const store = tx.objectStore('chapters');
@@ -35,7 +31,6 @@ export async function saveChapterToIndexedDB(ncode, chapterNum, data) {
 
 export async function getChapterFromIndexedDB(ncode, chapterNum) {
   const db = await openNovelDB();
-  console.log('Fetching:', ncode, chapterNum);
   return new Promise((resolve, reject) => {
     const tx = db.transaction('chapters', 'readonly');
     const store = tx.objectStore('chapters');
