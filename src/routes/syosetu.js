@@ -52,13 +52,13 @@ async function scrapeChapterData(ncode, chapterNum) {
 }
 
 router.post('/scrape', authenticateToken, async (req, res) => {
-  const ncode = req.query.ncode ? req.query.ncode.toLowerCase() : undefined;
-  const chapterNum = req.query.chapter;
-  if (!ncode || !chapterNum) {
-    return res.status(400).json({ error: 'Missing ncode or chapter parameter' });
+  const ncode = req.body.ncode ? req.body.ncode.toLowerCase() : undefined;
+  const chapter = parseInt(req.body.chapter, 10);
+  if (!ncode || isNaN(chapter) || chapter < 1) {
+    return res.status(400).json({ error: 'Missing ncode or invalid chapter parameter' });
   }
   try {
-    const chapterData = await scrapeChapterData(ncode, Number(chapterNum));
+    const chapterData = await scrapeChapterData(ncode, Number(chapter));
     res.json(chapterData);
   } catch (err) {
     res.status(500).json({ error: err.message });
