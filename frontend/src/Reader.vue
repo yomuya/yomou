@@ -19,7 +19,7 @@ async function fetchChapter() {
   if (result && (chapterNum.value < 1 || chapterNum.value > totalChapters.value)) {
     totalChapters.value = result.total_chapters || totalChapters.value
     await updateCurrentChapter(ncode.value, chapterNum.value, totalChapters.value)
-    await scrape(ncode.value, chapterNum.value + scrapeAheadCount.value);
+    await fetchChapterDb(ncode.value, Number(chapterNum.value + scrapeAheadCount.value))
   }
 }
 

@@ -1,13 +1,16 @@
-version: "3.8"
 services:
-  syosetu-tracker:
-    #image: insert image
-    container_name: syosetu-tracker
+  novel-tracker:
+    # image: ghcr.io/julian447/novel-tracker:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: novel-tracker
     ports:
       - 3000:3000
     environment:
       JWT_SECRET: $JWT_SECRET
+      NOVEL_UPDATE_MINUTES: 15
     volumes:
-      - /data/syosetu-tracker:/app/data
+      - ./data:/app/data
     restart: unless-stopped
 networks: {}
