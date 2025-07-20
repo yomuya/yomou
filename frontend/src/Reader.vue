@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { authFetch } from './auth.js';
 import { scrape } from './scripts/scrape.js';
-import { setNovelProgress, initializeChapter as initializeChapterCache, initializeTotalChapters as initializeTotalChaptersCache } from './scripts/cache.js'
+import { setNovelProgress, getNovel } from './scripts/cache.js'
 import { fetchChapter as fetchChapterDb, updateCurrentChapter } from './scripts/database.js';
 
 const scrapeAheadCount = ref(1);
@@ -24,8 +24,9 @@ async function fetchChapter() {
 }
 
 async function initializeChapter() {
-  chapterNum.value = Number(await initializeChapterCache(ncode.value, chapterNum.value));
-  totalChapters.value = await initializeTotalChaptersCache(ncode.value);
+  const novel = await getNovel(ncode.value);
+  chapterNum.value = novel.current_chapter;
+  totalChapters.value = novel.total_chapters;
   fetchChapter();
 }
 

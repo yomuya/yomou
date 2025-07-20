@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchNovel, fetchNovelToC, updateCurrentChapter } from './scripts/database.js'
 import { scrapeAhead } from './scripts/scrape.js';
-import { initializeChapter, initializeTotalChapters, setNovelProgress } from './scripts/cache.js'
+import { setNovelProgress, setNovel } from './scripts/cache.js'
 
 const scrapeRangeStart = ref(1);
 const scrapeRangeEnd = ref(1);
@@ -17,6 +17,7 @@ const route = useRoute();
 onMounted(async () => {
   novel.value = await fetchNovel(route.params.ncode);
   toc.value = await fetchNovelToC(route.params.ncode);
+  setNovel(novel.value)
 });
 
 
