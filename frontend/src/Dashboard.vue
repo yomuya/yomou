@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import Table from './components/Table.vue';
 const router = useRouter();
 import { loadFollows } from './scripts/database.js'
+import { setNovelProgress } from './scripts/cache.js'
 
 const trackedNovels = ref([]);
 
@@ -17,6 +18,7 @@ function goToNovel(novel) {
 }
 
 function goToReader(novel) {
+  setNovelProgress(novel.ncode, novel.current_chapter, novel.total_chapters);
   router.push({ path: `/reader/${novel.ncode}` });
 }
 

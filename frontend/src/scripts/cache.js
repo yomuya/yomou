@@ -85,6 +85,7 @@ export async function initializeChapter(ncode, chapter) {
     const res = await authFetch(`/api/novels/${ncode}`);
     if (res.ok) {
       const novel = await res.json();
+      console.log(novel);
       chapter = novel.current_chapter || 1;
       await setNovelProgress(ncode, Number(chapter), novel.total_chapters || 1);
     } else {
