@@ -56,61 +56,75 @@ export async function getAllChaptersFromIndexedDB(ncode) {
   });
 }
 
-export async function setNovelProgress(ncode, chapter, totalChapters) {
-  localStorage.setItem(
-    `novel-progress-${ncode}`,
-    JSON.stringify({ chapter: Number(chapter), totalChapters: Number(totalChapters) })
-  );
+function NovelStateExists() {
+  try {
+    return JSON.parse(localStorage.getItem('novel-state')) || {};
+  } catch {
+    return {};
+  }
 }
 
-export async function getNovelProgress(ncode) {
-  const data = localStorage.getItem(`novel-progress-${ncode}`);
-  if (data) {
-    try {
-      const obj = JSON.parse(data);
-      return { chapter: obj.chapter, totalChapters: obj.totalChapters };
-    } catch {
-      return null;
-    }
+export async function setNovelProgress(ncode, chapter, totalChapters) {
+  migrateNovelState();
+  let state = NovelStateExists();
+  if (!state[ncode]) 
+    state[ncode] = {};
+
+  if (state[ncode].current_chapter != Number(chapter)) state[ncode].current_chapter = Number(chapter);
+  if (state[ncode].total_chapters != Number(totalChapters)) state[ncode].total_chapters = Number(totalChapters)
+
+  localStorage.setItem('novel-state', JSON.stringify(state));
+}
+
+export async function setNovel(novel) {
+  migrateNovelState();
+  let ncode = novel.ncode;
+  let state = NovelStateExists();
+  if (!state[ncode]) state[ncode] = {};
+  state[ncode] = {
+    ncode: novel.ncode,
+    title: novel.title,
+    author: novel.author,
+    current_chapter: novel.current_chapter,
+    total_chapters: novel.total_chapters,
+    last_checked: novel.last_checked,
+    last_cached: new Date().toISOString()
+  };
+  localStorage.setItem('novel-state', JSON.stringify(state));
+}
+
+export async function getNovel(ncode) {
+  migrateNovelState();
+  let state = NovelStateExists();
+  if (state && state[ncode]) {
+    return state[ncode];
   }
   return null;
 }
 
-export async function initializeChapter(ncode, chapter) {
-  const progress = await getNovelProgress(ncode);
-  if (progress && progress.chapter) {
-    chapter = Number(progress.chapter);
-  } else {
-    // fallback: fetch current_chapter from backend
-    const res = await authFetch(`/api/novels/${ncode}`);
-    if (res.ok) {
-      const novel = await res.json();
-      console.log(novel);
-      chapter = novel.current_chapter || 1;
-      await setNovelProgress(ncode, Number(chapter), novel.total_chapters || 1);
-    } else {
-      chapter = 1;
+function migrateNovelState() {
+  try {
+    const keys = Object.keys(localStorage);
+    let migrated = false;
+    let state = NovelStateExists();
+    keys.forEach(key => {
+      if (key.startsWith('novel-progress-') && key !== 'novel-progress') {
+        const ncode = key.replace('novel-progress-', '');
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          if (data && typeof data.chapter !== 'undefined' && typeof data.totalChapters !== 'undefined') {
+            if (!state[ncode]) state[ncode] = {};
+            state[ncode].progress = { chapter: Number(data.chapter), totalChapters: Number(data.totalChapters) };
+            migrated = true;
+            localStorage.removeItem(key);
+          }
+        } catch {
+        }
+      }
+    });
+    if (migrated) {
+      localStorage.setItem('novel-state', JSON.stringify(state));
     }
-  }
-  return Number(chapter);
-}
-
-export async function initializeTotalChapters(ncode) {
-  const progress = await getNovelProgress(ncode);
-  if (progress && progress.totalChapters) {
-    return Number(progress.totalChapters);
-  } else {
-    // fallback: fetch from backend
-    const res = await authFetch(`/api/novels/${ncode}`);
-    if (res.ok) {
-      const novel = await res.json();
-      const total = novel.total_chapters || 1;
-      await setNovelProgress(ncode, Number(novel.current_chapter) || 1, total);
-      return total;
-    } else {
-      return 1;
-    }
+  } catch {
   }
 }
-
-
