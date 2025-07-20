@@ -35,7 +35,11 @@ export async function fetchChapter(ncode, chapterNum) {
     if (chapter) {
       return chapter;
     }
-    const res = await authFetch(`/api/syosetu/scrape?ncode=${ncode}&chapter=${Number(chapterNum)}`, { method: 'POST' })
+    const res = await authFetch('/api/syosetu/scrape', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ncode: ncode, chapter: chapterNum })
+    });
     if (res.ok) {
       const text = await res.text()
       const chapterData = JSON.parse(text)

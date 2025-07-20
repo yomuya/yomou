@@ -52,8 +52,8 @@ async function scrapeChapterData(ncode, chapterNum) {
 }
 
 router.post('/scrape', authenticateToken, async (req, res) => {
-  const ncode = req.query.ncode ? req.query.ncode.toLowerCase() : undefined;
-  const chapterNum = req.query.chapter;
+  const ncode = req.body.ncode ? req.body.ncode.toLowerCase() : undefined;
+  const chapterNum = req.body.chapter;
   if (!ncode || !chapterNum) {
     return res.status(400).json({ error: 'Missing ncode or chapter parameter' });
   }
