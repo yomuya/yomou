@@ -1,7 +1,6 @@
-version: "3.8"
 services:
-  syosetu-tracker:
-    #image: insert image
+  novel-tracker:
+    image: ghcr.io/julian447/novel-tracker:latest
     container_name: syosetu-tracker
     ports:
       - 3000:3000
