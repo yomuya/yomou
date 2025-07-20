@@ -2,10 +2,8 @@ name: Build and Publish Docker image
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-    types: [closed]
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -34,4 +32,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ steps.vars.outputs.owner }}/${{ steps.vars.outputs.repo }}:latest
+          tags: |
+            ghcr.io/${{ steps.vars.outputs.owner }}/${{ steps.vars.outputs.repo }}:latest
+            ghcr.io/${{ steps.vars.outputs.owner }}/${{ steps.vars.outputs.repo }}:${{ github.ref_name }}

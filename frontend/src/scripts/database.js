@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { authFetch } from '../auth.js';
 import { setNovelProgress, getChapterFromIndexedDB, saveChapterToIndexedDB, getAllChaptersFromIndexedDB } from './cache.js'
+import { scrape } from './scrape.js';
 
 export async function fetchNovel(ncode) {
   const res = await authFetch(`/api/novels/${ncode}`);
@@ -31,20 +32,19 @@ export async function loadFollows() {
 
 export async function fetchChapter(ncode, chapterNum) {
   try {
-    const chapter = await getChapterFromIndexedDB(ncode, Number(chapterNum));
+    if (!ncode || !chapterNum) {
+      return null;
+    }
+    let chapter = await getChapterFromIndexedDB(ncode, Number(chapterNum));
     if (chapter) {
       return chapter;
     }
-    const res = await authFetch(`/api/syosetu/scrape?ncode=${ncode}&chapter=${Number(chapterNum)}`, { method: 'POST' })
-    if (res.ok) {
-      const text = await res.text()
-      const chapterData = JSON.parse(text)
-      await saveChapterToIndexedDB(ncode, Number(chapterNum), chapterData);
-      return chapterData
-    } 
-    else {
-      return null
+    chapter = await scrape(ncode, chapterNum);
+    if (chapter) {
+      const cached = await getChapterFromIndexedDB(ncode, Number(chapterNum));
+      return cached || chapter;
     }
+    return null;
   } catch (e) {
     console.error('Network error:', e)
     return null
