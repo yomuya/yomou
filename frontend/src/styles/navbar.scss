@@ -1,0 +1,41 @@
+@use 'sass:color';
+
+$primary: color.mix(black, white, 80%);
+
+
+.navbar {
+  width: 100vw;
+  font-size: 1rem;
+  background: $primary;
+  border: none;
+  border-radius: 0;
+  cursor: default;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-buttons {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  background: none;
+  box-shadow: none;
+  transition: none;
+  transform: none;
+  align-items: center;
+}
+
+.nav-buttons-inner {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+button {
+  background: $primary;
+}

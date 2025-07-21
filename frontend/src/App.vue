@@ -1,14 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterView } from 'vue-router'
-import Hamburger from './components/Hamburger.vue'
+import Navbar from './components/Navbar.vue'
 
 const menuOpen = ref(false)
 </script>
 
 <template>
-  <div :class="{ 'menu-open': menuOpen }">
-    <Hamburger @toggle="menuOpen = $event" />
+  <div>
+    <Navbar />
     <div class="container">
       <RouterView/>
     </div>
