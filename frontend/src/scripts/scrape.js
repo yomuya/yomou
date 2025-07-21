@@ -9,7 +9,6 @@ export async function scrape(ncode, chapter) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ncode, chapter })
   });
-  console.log("hit", res.body);
   if (!res.ok) {
     console.error('Failed to scrape chapter:', await res.text());
     return;

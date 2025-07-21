@@ -4,13 +4,14 @@ $primary: color.mix(black, white, 80%);
 
 
 .navbar {
+  position: fixed;
   width: 100vw;
+  height: 3rem;
   font-size: 1rem;
   background: $primary;
   border: none;
   border-radius: 0;
   cursor: default;
-  position: fixed;
   top: 0;
   left: 0;
   z-index: 220;
@@ -35,6 +36,30 @@ $primary: color.mix(black, white, 80%);
   flex-direction: row;
   gap: 1rem;
 }
+
+.hide-menu-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  z-index: 9999;
+  padding: 0.25rem 0.5rem;
+  background: color.adjust($primary, $lightness: 10%);
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: background 0.2s;
+}
+// .hide-menu-btn:hover {
+//   background: color.mix(black, $primary, 10%);
+// }
+.hide-menu-btn svg {
+  display: block;
+}
+
 
 button {
   background: $primary;

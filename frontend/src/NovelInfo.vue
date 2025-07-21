@@ -30,7 +30,11 @@ async function handleScrapeAhead() {
       start: scrapeRangeStart.value,
       end: scrapeRangeEnd.value
     });
-    novel.value = updatedNovel;
+    if (updatedNovel && updatedNovel.ncode && updatedNovel.title) {
+      novel.value = updatedNovel;
+      toc.value = await fetchNovelToC(novel.value.ncode);
+    } else {
+    }
   } catch (e) {
     // ignore errors for individual chapters
   }
@@ -48,6 +52,9 @@ watch(novel, (val) => {
   }
 });
 watch(tocDisplayCount, () => {
+  tocDisplayStart.value = 0;
+});
+watch(toc, () => {
   tocDisplayStart.value = 0;
 });
 </script>
