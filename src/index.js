@@ -14,11 +14,15 @@ app.use('/api/users', userRoutes);
 app.use('/api/syosetu', syosetuRoutes);
 app.use('/api/novels', novelRoutes);
 
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// if (process.env.NODE_ENV === 'production') {
+if (require('fs').existsSync(path.join(__dirname, '../frontend/dist'))) {
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+  });
+}
+// }
 
-app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
-});
 
 
 app.listen(port, () => {

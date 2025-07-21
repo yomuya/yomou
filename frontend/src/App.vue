@@ -1,15 +1,18 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterView } from 'vue-router'
-import Hamburger from './components/Hamburger.vue'
+import Navbar from './components/Navbar.vue'
 
-const menuOpen = ref(false)
+const menuOpen = ref(true)
+function handleToggle(val) {
+  menuOpen.value = val
+}
 </script>
 
 <template>
-  <div :class="{ 'menu-open': menuOpen }">
-    <Hamburger @toggle="menuOpen = $event" />
-    <div class="container">
+  <div>
+    <Navbar :show-menu="menuOpen" @toggle="handleToggle" />
+    <div class="container" :style="{ paddingTop: menuOpen ? '4rem' : '0' }">
       <RouterView/>
     </div>
   </div>

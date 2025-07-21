@@ -16,7 +16,6 @@ async function fetchNovel(ncodeValue) {
     const res = await authFetch(`/api/syosetu?ncode=${encodeURIComponent(ncodeValue)}`);
     const full_data = await res.json();
     const data = full_data[1];
-    console.log(full_data[0]);
     output.value = JSON.stringify(data, null, 2);
 
     if (Array.isArray(data) && data.length === 1 && typeof data[0] === 'object') {

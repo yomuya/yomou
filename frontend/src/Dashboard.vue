@@ -42,11 +42,11 @@ function goToReader(novel) {
       @row-click="goToNovel"
     >
       <template #cell-progress="{ item }">
-        <span style="cursor:pointer; color:blue;" @click.stop="goToReader(item)">
+        <span class="nav-reader" @click.stop="goToReader(item)">
           {{ item.current_chapter }}
         </span>
         /
-        <span style="cursor:pointer; color:blue;" @click.stop="goToReader(item)">
+        <span class="nav-reader"  @click.stop="goToReader(item)">
           {{ item.total_chapters }}
         </span>
       </template>
@@ -56,4 +56,18 @@ function goToReader(novel) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.nav-reader {
+  color: #5fd3fa;
+  cursor: pointer;
+  transition: color 0.18s, background 0.18s;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.nav-reader:hover {
+  color: #fff;
+  background: #3a3a5e;
+}
+</style>
 
