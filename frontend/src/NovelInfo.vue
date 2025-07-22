@@ -7,6 +7,7 @@ import { setNovelProgress, setNovel } from './scripts/cache.js'
 
 const scrapeRangeStart = ref(1);
 const scrapeRangeEnd = ref(1);
+const scrapeRangeAhead = ref(1);
 const scraping = ref(false);
 const novel = ref(null);
 const toc = ref([]);
@@ -21,14 +22,14 @@ onMounted(async () => {
 });
 
 
-async function handleScrapeAhead() {
+async function handleScrapeAhead(start, end) {
   if (!novel.value) return;
   scraping.value = true;
   try {
     const updatedNovel = await scrapeAhead({
       ncode: novel.value.ncode,
-      start: scrapeRangeStart.value,
-      end: scrapeRangeEnd.value
+      start: start,
+      end: end 
     });
     if (updatedNovel && updatedNovel.ncode && updatedNovel.title) {
       novel.value = updatedNovel;
@@ -89,12 +90,20 @@ watch(toc, () => {
       </div>
       <div v-if="novel" style="margin-top: 1em;">
         <label>
+          Scrape Ahead:
+          <input v-model.number="scrapeRangeAhead" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
+        </label>
+        <button @click="handleScrapeAhead(scrapeRangeStart, scrapeRangeStart + scrapeRangeAhead)" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
+      </div>
+
+      <div v-if="novel" style="margin-top: 1em;">
+        <label>
           Scrape range:
           <input v-model.number="scrapeRangeStart" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
           -
           <input v-model.number="scrapeRangeEnd" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
         </label>
-        <button @click="handleScrapeAhead" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
+        <button @click="handleScrapeAhead(scrapeRangeStart, scrapeRangeEnd)" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
       </div>
     </div>
     <div class="toc-box" v-if="toc.length">

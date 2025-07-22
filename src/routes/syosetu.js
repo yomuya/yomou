@@ -73,6 +73,8 @@ router.post('/scrapeahead', authenticateToken, async (req, res) => {
   if (!ncode || isNaN(start) || isNaN(end) || start < 1 || end < start) {
     return res.status(400).json({ error: 'Missing ncode or invalid start/end parameter' });
   }
+  // console.log('start: ', start);
+  // console.log('end: ', end);
   let results = [];
   for (let ch = start; ch <= end; ++ch) {
     try {
