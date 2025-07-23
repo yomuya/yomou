@@ -111,7 +111,7 @@ watch(toc, () => {
           Scrape Ahead:
           <input v-model.number="scrapeRangeAhead" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
         </label>
-        <button @click="handleScrapeAhead(scrapeRangeStart, scrapeRangeStart + scrapeRangeAhead)" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
+        <button @click="handleScrapeAhead(scrapeRangeStart, scrapeRangeStart + scrapeRangeAhead)" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape ahead' }}</button>
       </div>
 
       <div v-if="novel" style="margin-top: 1em;">
