@@ -3,16 +3,20 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchNovel, fetchNovelToC, updateCurrentChapter } from './scripts/database.js'
 import { scrapeAhead } from './scripts/scrape.js';
-import { setNovelProgress, setNovel } from './scripts/cache.js'
+import { setNovelProgress, setNovel, removeChaptersFromIndexedDB } from './scripts/cache.js'
+
 
 const scrapeRangeStart = ref(1);
 const scrapeRangeEnd = ref(1);
+const scrapeRangeAhead = ref(1);
 const scraping = ref(false);
 const novel = ref(null);
 const toc = ref([]);
 const tocDisplayCount = ref(20);
 const tocDisplayStart = ref(0);
 const route = useRoute();
+const selectedChapters = ref([]);
+const showCheckboxes = ref(false);
 
 onMounted(async () => {
   novel.value = await fetchNovel(route.params.ncode);
@@ -21,28 +25,43 @@ onMounted(async () => {
 });
 
 
-async function handleScrapeAhead() {
+async function handleScrapeAhead(start, end) {
   if (!novel.value) return;
   scraping.value = true;
   try {
     const updatedNovel = await scrapeAhead({
       ncode: novel.value.ncode,
-      start: scrapeRangeStart.value,
-      end: scrapeRangeEnd.value
+      start: start,
+      end: end 
     });
     if (updatedNovel && updatedNovel.ncode && updatedNovel.title) {
       novel.value = updatedNovel;
-      toc.value = await fetchNovelToC(novel.value.ncode);
     } else {
     }
   } catch (e) {
     // ignore errors for individual chapters
   }
   scraping.value = false;
+  toc.value = await fetchNovelToC(novel.value.ncode);
 }
 
 function goToSyosetu(novel) {
   window.open(`https://ncode.syosetu.com/${novel.ncode}`, '_blank');
+}
+
+function removeChapterFromCache(chapterNum) {
+  if (!novel.value) return;
+  removeChaptersFromIndexedDB(novel.value.ncode, [chapterNum]).then(async () => {
+    toc.value = await fetchNovelToC(novel.value.ncode);
+  });
+}
+
+function removeSelectedChapters() {
+  if (!novel.value || selectedChapters.value.length === 0) return;
+  removeChaptersFromIndexedDB(novel.value.ncode, selectedChapters.value.slice()).then(async () => {
+    toc.value = await fetchNovelToC(novel.value.ncode);
+    selectedChapters.value = [];
+  });
 }
 
 watch(novel, (val) => {
@@ -89,15 +108,36 @@ watch(toc, () => {
       </div>
       <div v-if="novel" style="margin-top: 1em;">
         <label>
+          Scrape Ahead:
+          <input v-model.number="scrapeRangeAhead" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
+        </label>
+        <button @click="handleScrapeAhead(scrapeRangeStart, scrapeRangeStart + scrapeRangeAhead)" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape ahead' }}</button>
+      </div>
+
+      <div v-if="novel" style="margin-top: 1em;">
+        <label>
           Scrape range:
           <input v-model.number="scrapeRangeStart" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
           -
           <input v-model.number="scrapeRangeEnd" type="number" min="1" :max="novel ? novel.total_chapters : 1" style="width: 4em; margin-right: 0.5em;" />
         </label>
-        <button @click="handleScrapeAhead" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
+        <button @click="handleScrapeAhead(scrapeRangeStart, scrapeRangeEnd)" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
       </div>
     </div>
     <div class="toc-box" v-if="toc.length">
+      <div style="display: flex; align-items: center; margin-bottom: 0.5em;">
+        <span
+          @click="removeSelectedChapters"
+          :style="{
+            marginRight: '0.7em',
+            cursor: selectedChapters.length === 0 ? 'not-allowed' : 'pointer',
+            opacity: selectedChapters.length === 0 ? 0.5 : 1,
+            fontSize: '1.2em'
+          }"
+          title="Remove selected chapters"
+          :disabled="selectedChapters.length === 0"
+        >🗑️</span>
+      </div>
       <h3>Scraped Table of Contents</h3>
       <label style="display:inline-block; margin-bottom:0.7em;">
         Show
@@ -126,13 +166,20 @@ watch(toc, () => {
         <li
           v-for="ch in toc.slice(tocDisplayStart, tocDisplayStart + tocDisplayCount)"
           :key="ch.chapter"
+          style="display: flex; align-items: center;"
         >
-        <router-link
-          :to="`/reader/${novel.ncode}`"
-          @click.prevent="setNovelProgress(novel.ncode, Number(ch.chapterNum), novel.total_chapters)"
-        >
-          {{ ch.title || 'Untitled' }}
-        </router-link>
+          <input
+            type="checkbox"
+            :value="ch.chapterNum"
+            v-model="selectedChapters"
+            style="margin-right: 0.5em;"
+          />
+          <router-link
+            :to="`/reader/${novel.ncode}`"
+            @click.prevent="setNovelProgress(novel.ncode, Number(ch.chapterNum), novel.total_chapters)"
+          >
+            {{ ch.title || 'Untitled' }}
+          </router-link>
         </li>
         <li v-if="toc.length > tocDisplayCount" class="toc-nav-row toc-nav-row--bottom">
           <p

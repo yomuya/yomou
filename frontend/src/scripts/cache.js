@@ -56,6 +56,39 @@ export async function getAllChaptersFromIndexedDB(ncode) {
   });
 }
 
+export async function removeChapterFromIndexedDB(ncode, chapterNum) {
+  const db = await openNovelDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('chapters', 'readwrite');
+    const store = tx.objectStore('chapters');
+    const req = store.delete([ncode, Number(chapterNum)]);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function removeChaptersFromIndexedDB(ncode, chapterNums) {
+  const db = await openNovelDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('chapters', 'readwrite');
+    const store = tx.objectStore('chapters');
+    let completed = 0;
+    let hasError = false;
+    chapterNums.forEach(chapterNum => {
+      const req = store.delete([ncode, Number(chapterNum)]);
+      req.onsuccess = () => {
+        completed++;
+        if (completed === chapterNums.length && !hasError) resolve();
+      };
+      req.onerror = () => {
+        hasError = true;
+        reject(req.error);
+      };
+    });
+    if (chapterNums.length === 0) resolve();
+  });
+}
+
 function NovelStateExists() {
   try {
     return JSON.parse(localStorage.getItem('novel-state')) || {};
@@ -128,3 +161,5 @@ function migrateNovelState() {
   } catch {
   }
 }
+
+
