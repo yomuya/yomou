@@ -36,13 +36,13 @@ async function handleScrapeAhead(start, end) {
     });
     if (updatedNovel && updatedNovel.ncode && updatedNovel.title) {
       novel.value = updatedNovel;
-      toc.value = await fetchNovelToC(novel.value.ncode);
     } else {
     }
   } catch (e) {
     // ignore errors for individual chapters
   }
   scraping.value = false;
+  toc.value = await fetchNovelToC(novel.value.ncode);
 }
 
 function goToSyosetu(novel) {
@@ -51,12 +51,17 @@ function goToSyosetu(novel) {
 
 function removeChapterFromCache(chapterNum) {
   if (!novel.value) return;
-  removeChaptersFromIndexedDB(novel.value.ncode, [chapterNum]);
+  removeChaptersFromIndexedDB(novel.value.ncode, [chapterNum]).then(async () => {
+    toc.value = await fetchNovelToC(novel.value.ncode);
+  });
 }
+
 function removeSelectedChapters() {
   if (!novel.value || selectedChapters.value.length === 0) return;
-  removeChaptersFromIndexedDB(novel.value.ncode, selectedChapters.value.slice());
-  selectedChapters.value = [];
+  removeChaptersFromIndexedDB(novel.value.ncode, selectedChapters.value.slice()).then(async () => {
+    toc.value = await fetchNovelToC(novel.value.ncode);
+    selectedChapters.value = [];
+  });
 }
 
 watch(novel, (val) => {
