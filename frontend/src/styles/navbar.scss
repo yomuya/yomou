@@ -38,7 +38,7 @@ $primary: color.mix(black, white, 80%);
 }
 
 .hide-menu-btn {
-  position: absolute;
+  position: fixed;
   top: 0.5rem;
   right: 1rem;
   z-index: 9999;
