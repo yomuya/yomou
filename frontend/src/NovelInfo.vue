@@ -147,22 +147,26 @@ watch(toc, () => {
         chapters
       </label>
       <ul>
-        <li v-if="toc.length > tocDisplayCount" class="toc-nav-row toc-nav-row--top">
-          <p
-            class="toc-nav-btn"
-            :class="{ disabled: tocDisplayStart === 0 }"
-            @click="tocDisplayStart === 0 ? null : (tocDisplayStart = Math.max(0, tocDisplayStart - tocDisplayCount))"
-          >
-            &#8592; Previous {{ tocDisplayCount }}
-          </p>
-          <p
-            class="toc-nav-btn"
-            :class="{ disabled: tocDisplayStart + tocDisplayCount >= toc.length }"
-            @click="tocDisplayStart + tocDisplayCount >= toc.length ? null : (tocDisplayStart = Math.min(toc.length - tocDisplayCount, tocDisplayStart + tocDisplayCount))"
-          >
-            Next {{ tocDisplayCount }} &#8594;
-          </p>
-        </li>
+      <li v-if="toc.length > tocDisplayCount" class="toc-nav-row toc-nav-row--top">
+        <p
+          class="toc-nav-btn"
+          :class="{ disabled: tocDisplayStart === 0 }"
+          @click="tocDisplayStart === 0 ? null : (tocDisplayStart = Math.max(0, tocDisplayStart - tocDisplayCount))"
+        >
+          &#8592; Previous {{ tocDisplayCount }}
+        </p>
+        <p
+          class="toc-nav-btn"
+          :class="{ disabled: tocDisplayStart + tocDisplayCount >= toc.length }"
+          @click="
+            tocDisplayStart + tocDisplayCount >= toc.length
+              ? null
+              : (tocDisplayStart = Math.min(tocDisplayStart + tocDisplayCount, toc.length - (toc.length % tocDisplayCount || tocDisplayCount)))
+          "
+        >
+          Next {{ tocDisplayCount }} &#8594;
+        </p>
+      </li>
         <li
           v-for="ch in toc.slice(tocDisplayStart, tocDisplayStart + tocDisplayCount)"
           :key="ch.chapter"
