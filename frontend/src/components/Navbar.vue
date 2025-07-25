@@ -43,6 +43,7 @@ function toggleMenu() {
         <div class="nav-buttons-inner">
           <button @click="goTo('/')">Dashboard</button>
           <button @click="goTo('/lookup')">Novel Lookup</button>
+          <button @click="goTo('/settings')">Settings</button>
           <button @click="logout">Logout</button>
         </div>
       </div>
