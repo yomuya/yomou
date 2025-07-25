@@ -3,8 +3,12 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { authFetch } from './auth.js';
 import { scrape } from './scripts/scrape.js';
+import { applyUserSettings, setUserSettings, SettingsExists } from './scripts/settings.js';
 import { setNovelProgress, getNovel } from './scripts/cache.js'
 import { fetchChapter as fetchChapterDb, updateCurrentChapter } from './scripts/database.js';
+import ReaderSettingsTab from './settings/ReaderSettingsTab.vue'
+
+import SettingsIcon from './assets/settings.svg'
 
 const scrapeAheadCount = ref(1);
 const route = useRoute()
@@ -12,6 +16,7 @@ const ncode = ref(route.params.ncode ?? '')
 const chapterNum = ref(null)
 const chapter = ref(null)
 const totalChapters = ref(null)
+const showSettings = ref(false)
 
 async function fetchChapter() {
   const result = await fetchChapterDb(ncode.value, Number(chapterNum.value))
@@ -30,6 +35,8 @@ async function initializeChapter() {
   chapterNum.value = novel.current_chapter;
   totalChapters.value = novel.total_chapters;
   fetchChapter();
+  const settings = await SettingsExists();
+  await applyUserSettings(settings);
 }
 
 onMounted(initializeChapter)
@@ -48,6 +55,7 @@ onMounted(initializeChapter)
         @click="chapterNum < totalChapters ? (chapterNum = Number(chapterNum) + 1, setNovelProgress(ncode, Number(chapterNum), totalChapters), fetchChapter()) : null"
       >Next</button>
     </label>
+  <button class="settings-btn" @click="showSettings = true" aria-label="Reader Settings">Settings</button>
   </div>
 
   <div class="content" v-if="chapter">
@@ -79,6 +87,10 @@ onMounted(initializeChapter)
       >Next</button>
     </label>
   </div>
+
+  <dialog v-if="showSettings" class="reader-settings-dialog" open>
+    <ReaderSettingsTab @close="showSettings = false" />
+  </dialog>
 </template>
 
 <style scoped lang="scss">
