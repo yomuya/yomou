@@ -23,22 +23,8 @@
   min-width: 260px;
   max-width: 600px;
   // height: 260px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--novelinfo-border, #e5e7eb);
   background: transparent;
-}
-
-.novel-image-box {
-  width: 120px;
-  height: 180px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  margin-right: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #aaa;
-  font-size: 1.2rem;
-  flex-shrink: 0;
 }
 
 .novel-info-box h2 {
@@ -46,6 +32,7 @@
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  color: var(--novelinfo-heading, #213547);
 }
 
 .novel-info-box p {
@@ -55,12 +42,12 @@
 
 .toc-box {
   border-radius: 10px;
-  box-shadow: 0 2px 12px #0001;
+  box-shadow: 0 2px 12px #0002;
   padding: 2.5rem 2rem;
   min-width: 260px;
   width: 100%;
   max-width: 600px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--novelinfo-border, #e5e7eb);
 }
 
 .toc-box h3 {
@@ -82,13 +69,13 @@
 
 .toc-box a {
   text-decoration: none;
-  color: #2563eb;
+  color: var(--novelinfo-link, #2563eb);
   font-weight: 500;
   transition: color 0.15s;
 }
 
 .toc-box a:hover {
-  color: #1d4ed8;
+  color: var(--novelinfo-link-hover, #1d4ed8);
   text-decoration: underline;
 }
 
@@ -106,7 +93,7 @@
 
 .toc-nav-btn {
   cursor: pointer;
-  color: #2563eb;
+  color: var(--novelinfo-link, #2563eb);
   margin: 0;
   user-select: none;
   transition: opacity 0.15s;
