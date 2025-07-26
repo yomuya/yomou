@@ -1,7 +1,12 @@
 
 export async function SettingsExists() {
   try {
-    return JSON.parse(localStorage.getItem('userSettings')) || {};
+    let settings = JSON.parse(localStorage.getItem('userSettings'));
+    if (settings = {}){
+      setUserSettings(); 
+      settings = JSON.parse(localStorage.getItem('userSettings'));
+    }
+    return settings;
   } catch {
     return {};
   }
