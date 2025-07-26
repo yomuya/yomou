@@ -9,6 +9,7 @@ const tabs = [
   { key: 'general', label: 'General', component: GeneralSettingsTab },
   { key: 'table', label: 'Table', component: TableSettingsTab },
   { key: 'navbar', label: 'Navbar', component: NavbarSettingsTab },
+  { key: 'reader', label: 'Reader', component: ReaderSettingsTab },
 ]
 const activeTab = ref('general')
 </script>

@@ -55,7 +55,7 @@ onMounted(initializeChapter)
         @click="chapterNum < totalChapters ? (chapterNum = Number(chapterNum) + 1, setNovelProgress(ncode, Number(chapterNum), totalChapters), fetchChapter()) : null"
       >Next</button>
     </label>
-  <button class="settings-btn" @click="showSettings = true" aria-label="Reader Settings">Settings</button>
+    <!-- <button class="settings-btn" @click="showSettings = true" aria-label="Reader Settings">Settings</button> -->
   </div>
 
   <div class="content" v-if="chapter">

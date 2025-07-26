@@ -83,7 +83,7 @@ watch(toc, () => {
     <div class="novel-info-box">
       <div v-if="novel">
         <h2>
-          <span style="cursor:pointer; color:lightblue;" @click.stop="goToSyosetu(novel)">
+          <span style="cursor:pointer;" @click.stop="goToSyosetu(novel)">
             {{ novel.title }}
           </span>
         </h2>

@@ -1,0 +1,81 @@
+@use 'sass:color';
+
+:root {
+  // general
+  --background-color: #ffffff;
+  --primary-color: #213547;
+  --link-color: #646cff;
+  --link-hover-color: #747bff;
+
+  --button-bg: #d1d1d1;
+  --button-color: #2a3a4a;
+  --button-hover-bg: #31343b
+  --button-hover-border: #646cff;
+  --button-focus-outline: #646cff;
+
+  --card-bg: #ffffff;
+  --card-shadow: 0 2px 12px rgba(0,0,0,0.18);
+
+  --heading-color: #213547;
+
+  --pre-bg: #f4f4f4;
+  --pre-text: #333333;
+
+  // navbar
+  --navbar-bg: #f9f9f9;
+  --navbar-btn-bg: #2a3a4a;
+  --navbar-btn-color: #646cff;
+
+  // novelinfo
+  --novelinfo-bg: #ffffff;
+  --novelinfo-border: #e5e7eb;
+  --novelinfo-heading: #a1c7eb;
+  --novelinfo-text: #333333;
+  --novelinfo-link: #2563eb;
+  --novelinfo-link-hover: #1d4ed8;
+
+  // Table component
+  --table-input-bg: #f4f4f4;
+  --table-input-color: #213547;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    // general
+    --background-color: #181a1b;
+    --primary-color: #ffffff;
+    --link-color: #a8b1ff;
+    --link-hover-color: #747bff;
+
+    --button-bg: #000000;
+    --button-color: #f9f9f9;
+    --button-hover-bg: #31343b
+    --button-hover-border: #a8b1ff;
+    --button-focus-outline: #a8b1ff;
+
+    --card-bg: #23234a;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.28);
+
+    --heading-color: #ffffff;
+
+    --pre-bg: #23234a;
+    --pre-text: #f4f4f4;
+
+    // navbar
+    --navbar-bg: #374151;
+    --navbar-btn-bg: #23234a;
+    --navbar-btn-color: #a8b1ff;
+
+    // novelinfo
+    --novelinfo-bg: #23234a;
+    --novelinfo-border: #374151;
+    --novelinfo-heading: #a1c7eb;
+    --novelinfo-text: #f4f4f4;
+    --novelinfo-link: #a8b1ff;
+    --novelinfo-link-hover: #747bff;
+
+    // Table component
+    --table-input-bg: #23234a;
+    --table-input-color: #ffe066;
+  }
+}

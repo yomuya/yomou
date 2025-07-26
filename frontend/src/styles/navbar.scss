@@ -1,6 +1,7 @@
 @use 'sass:color';
+@use './theme.scss';
 
-$primary: color.mix(black, white, 80%);
+// $primary: var(--navbar-bg);
 
 
 .navbar {
@@ -8,7 +9,7 @@ $primary: color.mix(black, white, 80%);
   width: 100vw;
   height: 3rem;
   font-size: 1rem;
-  background: $primary;
+  background: var(--navbar-bg);
   border: none;
   border-radius: 0;
   cursor: default;
@@ -21,6 +22,8 @@ $primary: color.mix(black, white, 80%);
 }
 
 .nav-buttons {
+  background: var(--navbar-btn-bg);
+  color: var(--navbar-btn-color);
   display: flex;
   flex-direction: row;
   height: 100%;
@@ -43,7 +46,7 @@ $primary: color.mix(black, white, 80%);
   right: 1rem;
   z-index: 9999;
   padding: 0.25rem 0.5rem;
-  background: color.adjust($primary, $lightness: 10%);
+  background: color-mix(in srgb, var(--navbar-bg), white 10%);
   border: none;
   border-radius: 0.25rem;
   cursor: pointer;
@@ -53,14 +56,12 @@ $primary: color.mix(black, white, 80%);
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   transition: background 0.2s;
 }
-// .hide-menu-btn:hover {
-//   background: color.mix(black, $primary, 10%);
-// }
+
 .hide-menu-btn svg {
   display: block;
 }
 
 
 button {
-  background: $primary;
+  background: var(--navbar-bg);
 }
