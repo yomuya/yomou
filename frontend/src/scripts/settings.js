@@ -13,11 +13,7 @@ export async function SettingsExists() {
 }
 
 export async function setUserSettings() {
-  let settings = SettingsExists();
-  if (!settings) 
-    settings = {};
-
-  settings = {
+  const settings = {
     general: {
     },
     table: {

@@ -96,7 +96,6 @@ watch(toc, () => {
             type="number"
             min="1"
             :max="novel.total_chapters"
-            style="width: 4em; margin-right: 0.5em;"
             @change="updateCurrentChapter(novel.ncode, Number(novel.current_chapter), novel.total_chapters)"
           />
           / {{ novel.total_chapters }}
@@ -167,24 +166,24 @@ watch(toc, () => {
           Next {{ tocDisplayCount }} &#8594;
         </p>
       </li>
-        <li
-          v-for="ch in toc.slice(tocDisplayStart, tocDisplayStart + tocDisplayCount)"
-          :key="ch.chapter"
-          style="display: flex; align-items: center;"
-        >
+      <li v-for="ch in toc.slice(tocDisplayStart, tocDisplayStart + tocDisplayCount)" :key="ch.chapter">
+        <span>
           <input
             type="checkbox"
             :value="ch.chapterNum"
             v-model="selectedChapters"
             style="margin-right: 0.5em;"
           />
+        </span>
+        <span class="toc-title">
           <router-link
             :to="`/reader/${novel.ncode}`"
             @click.prevent="setNovelProgress(novel.ncode, Number(ch.chapterNum), novel.total_chapters)"
           >
             {{ ch.title || 'Untitled' }}
           </router-link>
-        </li>
+        </span>
+      </li>
         <li v-if="toc.length > tocDisplayCount" class="toc-nav-row toc-nav-row--bottom">
           <p
             class="toc-nav-btn"

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Table from './components/Table.vue';
 const router = useRouter();
@@ -7,6 +7,12 @@ import { loadFollows } from './scripts/database.js'
 import { setNovelProgress } from './scripts/cache.js'
 
 const trackedNovels = ref([]);
+const isMobile = ref(window.innerWidth <= 1000);
+function handleResize() {
+  isMobile.value = window.innerWidth <= 1000;
+}
+onMounted(() => window.addEventListener('resize', handleResize));
+onUnmounted(() => window.removeEventListener('resize', handleResize));
 
 onMounted(async () => {
   const result = await loadFollows();
@@ -32,12 +38,17 @@ function goToReader(novel) {
     <Table
       v-if="trackedNovels.length > 0"
       :items="trackedNovels"
-      :columns="[
-        { key: 'ncode', label: 'Novel Code' },
-        { key: 'title', label: 'Title' },
-        { key: 'author', label: 'Author' },
-        { key: 'progress', label: 'Progress' }
-      ]"
+      :columns="isMobile
+        ? [
+            { key: 'title', label: 'Title' },
+            { key: 'progress', label: 'Progress' }
+          ]
+        : [
+            { key: 'ncode', label: 'Novel Code' },
+            { key: 'title', label: 'Title' },
+            { key: 'author', label: 'Author' },
+            { key: 'progress', label: 'Progress' }
+          ]"
       rowKey="ncode"
       @row-click="goToNovel"
     >

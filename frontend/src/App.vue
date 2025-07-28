@@ -1,9 +1,23 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterView } from 'vue-router'
 import Navbar from './components/Navbar.vue'
 
 const menuOpen = ref(true)
+const isMobile = ref(window.innerWidth <= 1000)
+
+function handleResize() {
+  isMobile.value = window.innerWidth <= 1000
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
 function handleToggle(val) {
   menuOpen.value = val
 }
@@ -12,7 +26,7 @@ function handleToggle(val) {
 <template>
   <div>
     <Navbar :show-menu="menuOpen" @toggle="handleToggle" />
-    <div class="container" :style="{ paddingTop: menuOpen ? '4rem' : '0' }">
+    <div class="container" :style="{ paddingTop: menuOpen && !isMobile ? '4rem' : '0', paddingBottom: menuOpen && isMobile ? '0' : '3rem' }">
       <RouterView/>
     </div>
   </div>
