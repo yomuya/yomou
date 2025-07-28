@@ -65,3 +65,29 @@
 button {
   background: var(--navbar-bg);
 }
+
+@media (max-width: 1000px) {
+  .navbar {
+    position: fixed;
+    width: 100vw;
+    height: 3rem;
+    font-size: 0.8rem;
+    top: unset;
+    bottom: 0;
+  }
+
+  .nav-buttons {
+    height: 3rem;
+    align-items: center;
+  }
+
+  .nav-buttons-inner {
+    height: 3rem;
+    flex-direction: row;
+    gap: 0rem;
+  }
+   
+  .hide-menu-btn{
+    display: none;
+  }
+}

@@ -107,20 +107,53 @@
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1000px) {
   .novel-info-row {
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0rem;
   }
   .novel-info-box,
   .toc-box {
-    min-width: 0;
+    border-radius: 0;
+    box-shadow: none;
+    min-width: 100%;
     width: 100%;
     max-width: 100%;
-    padding: 1.2rem 1rem;
+    padding: 1rem 0rem;
     margin-right: 0;
-    margin-bottom: 1rem;
-    // width: clamp(70px, 30vw, 90px);
-    // height: clamp(105px, 45vw, 135px);
+    margin-bottom: 0;
+    font-size: 0.9em;
+    background: transparent;
+    border: none;
+  }
+  .novel-info-box {
+    border-bottom: 2px solid var(--novelinfo-border, #e5e7eb);
+    text-align: left;
+  }
+  .novel-info-box h2 {
+    text-align: center;
+  }
+  .novel-info-box input[type="number"] {
+    //TODO: either make this adjustable or adjust sizes
+    width: 2.2em !important;
+  }
+  .toc-box {
+    border-top: 2px solid var(--novelinfo-border, #e5e7eb);
+  }
+  .toc-box li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.7rem;
+  }
+
+  .toc-box input[type="checkbox"] {
+    margin-right: 0.5em;
+    margin-top: 0.15em;
+    align-self: flex-start;
+  }
+  .toc-title {
+    flex: 1;
+    word-break: break-word;
+    text-align: left;
   }
 }
