@@ -1,6 +1,6 @@
 # Novel Tracker
 This tool is created to have a centralized hub for tracking and reading novels. 
-Initially this was meant to only include Syosetu web novels, but will be expanded to include Light Novels and possibly other custom sites.(will need to find a good approach to the last one)
+Initially this was meant to only include Syosetu web novels, but will be expanded to include Light Novels and possibly other custom sites.
 
 ## Features
 ✅: implemented ⚠️: Implemented, but may change in functionality ❌: Not implemented
