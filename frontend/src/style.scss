@@ -116,6 +116,9 @@ textarea {
 }
 
 @media (max-width: 1000px) {
+  .content {
+    padding-bottom: 3rem;
+  }
   .container {
     width: 100%;
     align-items: stretch;

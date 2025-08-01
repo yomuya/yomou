@@ -64,9 +64,9 @@ function logout() {
       <form @submit.prevent="addUser">
         <input v-model="newUser.name" placeholder="Name" required>
         <input v-model="newUser.password" placeholder="Password" type="password" required>
-        <div style="display: flex; gap: 1rem;">
-          <button type="submit">Add</button>
-          <button type="button" @click="showDialog = false">Cancel</button>
+        <div style="display: flex; gap: 1rem; flex-direction: row;">
+          <button type="submit" style="flex: 1;">Add</button>
+          <button type="button" @click="showDialog = false" style="flex: 1;">Cancel</button>
         </div>
       </form>
     </dialog>
