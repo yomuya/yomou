@@ -1,36 +1,54 @@
 <script setup>
-import { ref } from 'vue'
-import GeneralSettingsTab from './settings/GeneralSettingsTab.vue'
-import TableSettingsTab from './settings/TableSettingsTab.vue'
-import NavbarSettingsTab from './settings/NavbarSettingsTab.vue'
+import { ref, onMounted } from 'vue'
 import ReaderSettingsTab from './settings/ReaderSettingsTab.vue'
+import { getTheme, applyTheme } from './scripts/settings.js'
 
 const tabs = [
-  { key: 'general', label: 'General', component: GeneralSettingsTab },
-  { key: 'table', label: 'Table', component: TableSettingsTab },
-  { key: 'navbar', label: 'Navbar', component: NavbarSettingsTab },
   { key: 'reader', label: 'Reader', component: ReaderSettingsTab },
 ]
-const activeTab = ref('general')
+const activeTab = ref('reader')
+
+const themes = ref([])
+const showThemeDialog = ref(false)
+
+async function loadThemes() {
+  // IndexedDB doesn't support listing keys directly, so we use getAll
+  const db = await window.indexedDB.open('SettingsDB', 2)
+  db.onsuccess = function (event) {
+    const database = event.target.result
+    const tx = database.transaction('themes', 'readonly')
+    const store = tx.objectStore('themes')
+    const req = store.getAll()
+    req.onsuccess = () => {
+      themes.value = req.result.map(t => t.theme)
+    }
+  }
+}
+onMounted(loadThemes)
+
+function openThemeDialog() {
+  showThemeDialog.value = true
+}
+function closeThemeDialog() {
+  showThemeDialog.value = false
+  loadThemes()
+}
 </script>
 
 <template>
   <div>
-    <div class="tabs">
-      <button
-        v-for="tab in tabs"
-        :key="tab.key"
-        :class="{active: activeTab === tab.key}"
-        @click="activeTab = tab.key"
-      >
-        {{ tab.label }}
-      </button>
+    <div style="margin:1em 0;">
+      <h3>Themes</h3>
+      <ul>
+        <li v-for="theme in themes" :key="theme" style="margin-bottom:0.5em;">
+          <span>{{ theme }}</span>
+          <button @click="applyTheme(theme)" style="margin-left:1em;">Select</button>
+        </li>
+      </ul>
+      <button @click="openThemeDialog">Create New Theme</button>
     </div>
-    <component
-      v-for="tab in tabs"
-      :is="tab.component"
-      v-show="activeTab === tab.key"
-      :key="tab.key"
-    />
+    <div v-if="showThemeDialog">
+      <ReaderSettingsTab @close="closeThemeDialog" />
+    </div>
   </div>
 </template>
