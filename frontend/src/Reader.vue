@@ -1,9 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { authFetch } from './auth.js';
 import { scrape } from './scripts/scrape.js';
-import { applyUserSettings, setUserSettings, SettingsExists } from './scripts/settings.js';
+import { applyUserSettings, setUserSettings, SettingsExists, applyTheme } from './scripts/settings.js';
 import { setNovelProgress, getNovel } from './scripts/cache.js'
 import { fetchChapter as fetchChapterDb, updateCurrentChapter } from './scripts/database.js';
 import ReaderSettingsTab from './settings/ReaderSettingsTab.vue'
@@ -35,11 +35,17 @@ async function initializeChapter() {
   chapterNum.value = novel.current_chapter;
   totalChapters.value = novel.total_chapters;
   fetchChapter();
+  await setUserSettings();
   const settings = await SettingsExists();
-  await applyUserSettings(settings);
 }
 
-onMounted(initializeChapter)
+onMounted(() => {
+  document.body.classList.add('reader-page');
+  initializeChapter();
+});
+onUnmounted(() => {
+  document.body.classList.remove('reader-page');
+});
 </script>
 
 <template>
@@ -55,7 +61,6 @@ onMounted(initializeChapter)
         @click="chapterNum < totalChapters ? (chapterNum = Number(chapterNum) + 1, setNovelProgress(ncode, Number(chapterNum), totalChapters), fetchChapter()) : null"
       >Next</button>
     </label>
-    <!-- <button class="settings-btn" @click="showSettings = true" aria-label="Reader Settings">Settings</button> -->
   </div>
 
   <div class="content" v-if="chapter">
@@ -93,6 +98,12 @@ onMounted(initializeChapter)
   </dialog>
 </template>
 
+<style lang="scss">
+body.reader-page {
+  background: var(--reader-bg-color) !important;
+  color: var(--reader-text-color) !important;
+}
+</style>
 <style scoped lang="scss">
 @use './styles/reader.scss';
 </style>

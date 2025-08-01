@@ -10,8 +10,10 @@ function handleResize() {
   isMobile.value = window.innerWidth <= 1000
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('resize', handleResize)
+  const themeName = localStorage.getItem('theme') || 'dark';
+  await import('./scripts/settings.js').then(mod => mod.applyTheme(themeName));
 })
 
 onUnmounted(() => {

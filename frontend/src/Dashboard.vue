@@ -3,8 +3,9 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Table from './components/Table.vue';
 const router = useRouter();
-import { loadFollows } from './scripts/database.js'
-import { setNovelProgress } from './scripts/cache.js'
+import { loadFollows } from './scripts/database.js';
+import { setNovelProgress } from './scripts/cache.js';
+import { setUserSettings } from './scripts/settings.js';
 
 const trackedNovels = ref([]);
 const isMobile = ref(window.innerWidth <= 1000);

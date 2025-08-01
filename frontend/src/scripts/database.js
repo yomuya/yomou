@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { authFetch } from '../auth.js';
-import { setNovelProgress, getChapterFromIndexedDB, saveChapterToIndexedDB, getAllChaptersFromIndexedDB } from './cache.js'
+import { setNovelProgress, getChapterFromIndexedDB, saveChapterToIndexedDB, getAllChaptersFromIndexedDB } from './cache.js';
 import { scrape } from './scrape.js';
 
 export async function fetchNovel(ncode) {
@@ -39,6 +39,7 @@ export async function fetchChapter(ncode, chapterNum) {
     if (chapter) {
       return chapter;
     }
+    console.log('Fetching from API:', `/api/novels/${ncode}/${chapterNum}`);
     chapter = await scrape(ncode, chapterNum);
     if (chapter) {
       const cached = await getChapterFromIndexedDB(ncode, Number(chapterNum));
