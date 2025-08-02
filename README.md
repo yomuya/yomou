@@ -8,6 +8,7 @@ Initially this was meant to only include Syosetu web novels, but will be expande
 - ✅ Scrape chapters*
 - ✅ Offline Storage
 - ✅ Reader for stored content
+- ✅ Progressive Web App (PWA)
 - ❌ Light Novel Extraction
 - ❌ Custom site tracking (will need to find a user friendly approach which doesn't include looking through html tags for this)
 
@@ -44,3 +45,8 @@ Alternatively build this from source:
 npm run bootstrap
 npm run start
 ```
+## Usage
+Usage through desktop will be done through a browser through localhost or a public accessable ip/port hosting the tracker.
+Additionally, once the browser is accessed the tracker can be installed as a PWA on both desktop and mobiles.
+
+
