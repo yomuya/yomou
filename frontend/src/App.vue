@@ -12,7 +12,7 @@ function handleResize() {
 
 onMounted(async () => {
   window.addEventListener('resize', handleResize)
-  const themeName = localStorage.getItem('theme') || 'dark';
+  const themeName = localStorage.getItem('globalTheme') || 'dark';
   await import('./scripts/settings.js').then(mod => mod.applyTheme(themeName));
 })
 

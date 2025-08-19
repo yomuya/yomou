@@ -41,10 +41,14 @@ async function initializeChapter() {
 
 onMounted(() => {
   document.body.classList.add('reader-page');
+  const readerTheme = localStorage.getItem('readerTheme');
+  applyTheme(readerTheme);
   initializeChapter();
 });
 onUnmounted(() => {
   document.body.classList.remove('reader-page');
+  const globalTheme = localStorage.getItem('globalTheme') || 'dark';
+  applyTheme(globalTheme);
 });
 </script>
 

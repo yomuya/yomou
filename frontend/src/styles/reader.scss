@@ -1,6 +1,8 @@
 @use './theme.scss';
 
-body.reader-page {
+body.reader-page,
+body.reader-page .content,
+body.reader-page .content * {
   background: var(--reader-bg-color) !important;
   color: var(--reader-text-color) !important;
 }
