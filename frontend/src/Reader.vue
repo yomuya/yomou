@@ -41,10 +41,14 @@ async function initializeChapter() {
 
 onMounted(() => {
   document.body.classList.add('reader-page');
+  const readerTheme = localStorage.getItem('readerTheme');
+  applyTheme(readerTheme);
   initializeChapter();
 });
 onUnmounted(() => {
   document.body.classList.remove('reader-page');
+  const globalTheme = localStorage.getItem('globalTheme') || 'dark';
+  applyTheme(globalTheme);
 });
 </script>
 
@@ -66,13 +70,13 @@ onUnmounted(() => {
   <div class="content" v-if="chapter">
     <h1>{{ chapter.title }}</h1>
     <section v-if="chapter.preface" class="section">
-      <p v-for="(line, idx) in chapter.preface.split('\n')" :key="idx">{{ line }}</p>
+      <p v-for="(line, idx) in chapter.preface.split('\n')" :key="idx">{{ line.trim() }}</p>
     </section>
     <section v-if="chapter.body" class="section">
-      <p v-for="(line, idx) in chapter.body.split('\n')" :key="idx">{{ line }}</p>
+      <p v-for="(line, idx) in chapter.body.split('\n')" :key="idx">{{ line.trim() }}</p>
     </section>
     <section v-if="chapter.afterword" class="section">
-      <p v-for="(line, idx) in chapter.afterword.split('\n')" :key="idx">{{ line }}</p>
+      <p v-for="(line, idx) in chapter.afterword.split('\n')" :key="idx">{{ line.trim() }}</p>
     </section>
   </div>
   <div v-else>

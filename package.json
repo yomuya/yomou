@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Julian447/Novel-Tracker.git"
+    "url": "git+https://github.com/yomuya/yomou.git"
   },
   "keywords": [],
   "author": "",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/Julian447/Novel-Tracker/issues"
+    "url": "https://github.com/yomuya/yomou/issues"
   },
-  "homepage": "https://github.com/Julian447/Novel-Tracker#readme",
+  "homepage": "https://github.com/yomuya/yomou#readme",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cheerio": "^1.1.0",

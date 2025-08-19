@@ -18,9 +18,11 @@ function openSettingsDB() {
 
 export async function SettingsExists() {
   try {
-    let settings = localStorage.getItem('theme');
+    let settings = localStorage.getItem('globalTheme');
     if (!settings) {  
-      localStorage.setItem('theme', themeName);
+      setUserSettings();
+      localStorage.setItem('globalTheme', "dark");
+      localStorage.setItem('readerTheme', "dark");
       settings = "dark";
     }
     return settings;
@@ -116,14 +118,20 @@ export async function applyTheme(themeName) {
       document.documentElement.style.setProperty('--reader-max-width', theme['reader-max-width']);
       document.documentElement.style.setProperty('--reader-bg-color', theme['reader-bg-color']);
       document.documentElement.style.setProperty('--reader-text-color', theme['reader-text-color']);
-      document.documentElement.setAttribute('data-base-theme', theme['base-theme'] || themeName);
     }
-    document.documentElement.setAttribute('data-theme', themeName);
-    localStorage.setItem('theme', themeName);
+    document.documentElement.setAttribute('data-theme', theme['base-theme']);
     console.log('Theme switched to: ', themeName);
   } catch (e) {
     console.error('Failed to apply theme:', e);
   }
+}
+
+export async function changeTheme(themeName) {
+  const theme = await getTheme(themeName);
+  localStorage.setItem('globalTheme', theme['base-theme']);
+  localStorage.setItem('readerTheme', themeName);
+  applyTheme(themeName);
+  
 }
 
 export async function applyUserSettings(settings) {

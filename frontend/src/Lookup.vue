@@ -11,8 +11,15 @@ const showTrackBtn = ref(false);
 const trackMsg = ref('');
 const isAuthenticated = ref(false);
 
-async function fetchNovel(ncodeValue) {
+async function fetchNovel() {
+  var ncodeValue = ncode.value;
   try {
+    if (!ncodeValue || typeof ncodeValue !== 'string' || !ncodeValue.trim()) {
+      output.value = 'Error: No ncode provided.';
+      outputTable.value = null;
+      return;
+    }
+    console.log("Fetching ncode:", ncodeValue);
     const res = await authFetch(`/api/syosetu?ncode=${encodeURIComponent(ncodeValue)}`);
     const full_data = await res.json();
     const data = full_data[1];
@@ -50,7 +57,7 @@ fetchNovel(ncode.value);
   <div>
     <h1>Novel Lookup</h1>
     <input type="text" v-model="ncode" placeholder="Enter ncode (e.g. n4185ci)">
-    <button @click="fetchNovel(ncode)">Lookup Ncode</button>
+    <button @click="fetchNovel">Lookup Ncode</button>
     <button v-show="showTrackBtn" @click="trackNovel">Track Novel</button>
     <p v-show="trackMsg" v-html="trackMsg"></p>
     <Table

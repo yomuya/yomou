@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import ReaderSettingsTab from './settings/ReaderSettingsTab.vue'
-import { getTheme, applyTheme } from './scripts/settings.js'
+import { getTheme, applyTheme, changeTheme } from './scripts/settings.js'
 
 const tabs = [
   { key: 'reader', label: 'Reader', component: ReaderSettingsTab },
@@ -12,7 +12,6 @@ const themes = ref([])
 const showThemeDialog = ref(false)
 
 async function loadThemes() {
-  // IndexedDB doesn't support listing keys directly, so we use getAll
   const db = await window.indexedDB.open('SettingsDB', 2)
   db.onsuccess = function (event) {
     const database = event.target.result
@@ -42,7 +41,7 @@ function closeThemeDialog() {
       <ul>
         <li v-for="theme in themes" :key="theme" style="margin-bottom:0.5em;">
           <span>{{ theme }}</span>
-          <button @click="applyTheme(theme)" style="margin-left:1em;">Select</button>
+          <button @click="changeTheme(theme)" style="margin-left:1em;">Select</button>
         </li>
       </ul>
       <button @click="openThemeDialog">Create New Theme</button>

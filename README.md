@@ -23,13 +23,13 @@ docker run -d \
   -v ./data:/appdata
   -e JWT_SECRET: <secret> \ #define a secret
   -e NOVEL_UPDATE_MINUTES: 60 \ # minutes between automatic fetch
-  ghcr.io/julian447/novel-tracker:latest
+  ghcr.io/yomuya/yomou:latest
 ```
 This can also be done through Docker compose:
 ```bash
 services:
   novel-tracker:
-    image: ghcr.io/julian447/novel-tracker:latest
+    image: ghcr.io/yomuya/yomou:latest
     container_name: novel-tracker
     ports:
       - 3000:3000

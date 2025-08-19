@@ -1,16 +1,20 @@
 @use './theme.scss';
 
-body.reader-page {
+body.reader-page,
+body.reader-page .content,
+body.reader-page .content * {
   background: var(--reader-bg-color) !important;
   color: var(--reader-text-color) !important;
+  max-width: min(var(--reader-max-width, 60vw), 90vw);
+  padding-left: 1vw;
+  padding-right: 1vw;
+  overflow-wrap: anywhere;
 }
 
 .content {
-  max-width: var(--reader-max-width, 60vw);
   margin: 0 auto;
-  word-break: break-word;
-  overflow-wrap: anywhere;
   font-size: var(--reader-font-size, 16px);
+  word-break: break-word;
 }
 
 .content h1 {
