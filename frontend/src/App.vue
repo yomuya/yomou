@@ -11,6 +11,7 @@ function handleResize() {
 }
 
 onMounted(async () => {
+  await import('./scripts/settings.js').then(mod => mod.SettingsExists());
   window.addEventListener('resize', handleResize)
   const themeName = localStorage.getItem('globalTheme') || 'dark';
   await import('./scripts/settings.js').then(mod => mod.applyTheme(themeName));

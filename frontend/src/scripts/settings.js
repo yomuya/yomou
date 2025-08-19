@@ -18,9 +18,11 @@ function openSettingsDB() {
 
 export async function SettingsExists() {
   try {
-    let settings = localStorage.getItem('theme');
+    let settings = localStorage.getItem('globalTheme');
     if (!settings) {  
-      localStorage.setItem('theme', themeName);
+      setUserSettings();
+      localStorage.setItem('globalTheme', "dark");
+      localStorage.setItem('readerTheme', "dark");
       settings = "dark";
     }
     return settings;
