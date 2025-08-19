@@ -28,7 +28,9 @@ function handleToggle(val) {
 <template>
   <div>
     <Navbar :show-menu="menuOpen" @toggle="handleToggle" />
-    <div class="container" :style="{ paddingTop: menuOpen && !isMobile ? '4rem' : '0', paddingBottom: menuOpen && isMobile ? '4rem' : '0' }">
+    <div class="container" :style="{ paddingTop: menuOpen && !isMobile ? '4rem' : '0', 
+                                     paddingBottom: menuOpen && isMobile ? '4rem' : '0', 
+                                     paddingTop: isMobile ? '1rem' : '0'}">
       <RouterView/>
     </div>
   </div>
