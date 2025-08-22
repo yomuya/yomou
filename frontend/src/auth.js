@@ -1,4 +1,5 @@
 export function requireAuth() {
+  if (import.meta.env.VITE_STATIC === 'true') return true;
   const token = localStorage.getItem('token');
   if (!token) return false;
 
