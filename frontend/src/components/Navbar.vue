@@ -1,17 +1,19 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 
 const props = defineProps({
   showMenu: { type: Boolean, default: true }
 });
 
 function goTo(path) {
-  window.location.href = path;
+  router.push(path);
 }
 
 function logout() {
   localStorage.removeItem('token');
-  window.location.href = '/login';
+  router.push('/login');
 }
 
 const emit = defineEmits(['toggle']);

@@ -67,6 +67,6 @@ const routes = [
 ]
 
 export default createRouter({
- history: createWebHistory(),
+ history: createWebHistory(import.meta.env.VITE_STATIC === 'true' ? '/yomou/' : '/'),
  routes
 })
