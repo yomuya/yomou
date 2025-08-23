@@ -97,19 +97,6 @@ export async function setUserSettings() {
   }
 }
 
-export async function setNavbarSettings(data) {
-  const settings = SettingsExists();
-  settings.navbar = data;
-  localStorage.setItem('userSettings', JSON.stringify(settings));
-  applyUserSettings(settings);
-}
-export async function setReaderSettings(data) {
-  const settings = SettingsExists();
-  settings.reader = data;
-  localStorage.setItem('userSettings', JSON.stringify(settings));
-  applyUserSettings(settings);
-}
-
 export async function applyTheme(themeName) {
   try {
     const theme = await getTheme(themeName);

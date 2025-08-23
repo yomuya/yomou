@@ -20,7 +20,7 @@ const showCheckboxes = ref(false);
 
 onMounted(async () => {
   novel.value = await fetchNovel(route.params.ncode);
-  toc.value = await fetchNovelToC(route.params.ncode);
+  toc.value = await fetchNovelToC(route.params.ncode, 'asc');
   setNovel(novel.value)
 });
 

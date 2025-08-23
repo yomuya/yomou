@@ -1,4 +1,4 @@
-# Novel Tracker
+# Yomou 
 This tool is created to have a centralized hub for tracking and reading novels. 
 Initially this was meant to only include Syosetu web novels, but will be expanded to include Light Novels and possibly other custom sites.
 

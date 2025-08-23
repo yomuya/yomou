@@ -2,11 +2,14 @@ import { authFetch } from '../auth.js';
 
 function openNovelDB() {
   return new Promise((resolve, reject) => {
-    const request = window.indexedDB.open('NovelDB', 1);
+    const request = window.indexedDB.open('NovelDB', 2);
     request.onupgradeneeded = function (event) {
       const db = event.target.result;
       if (!db.objectStoreNames.contains('chapters')) {
         db.createObjectStore('chapters', { keyPath: ['ncode', 'chapterNum'] });
+      }
+      if (!db.objectStoreNames.contains('NovelData')) {
+        db.createObjectStore('NovelData', { keyPath: ['ncode'] });
       }
     };
     request.onsuccess = function (event) {
@@ -18,25 +21,49 @@ function openNovelDB() {
   });
 }
 
-export async function saveChapterToIndexedDB(ncode, chapterNum, data) {
+export async function saveToIndexedDB(storeName, data, key = null) {
   const db = await openNovelDB();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction('chapters', 'readwrite');
-    const store = tx.objectStore('chapters');
-    store.put({ ncode, chapterNum: Number(chapterNum), ...data });
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    if (key) {
+      store.put(data, key);
+    } else {
+      store.put(data);
+    }
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
 }
 
-export async function getChapterFromIndexedDB(ncode, chapterNum) {
+export async function getFromIndexedDB(storeName, key) {
   const db = await openNovelDB();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction('chapters', 'readonly');
-    const store = tx.objectStore('chapters');
-    const req = store.get([ncode, Number(chapterNum)]);
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const req = store.get(key);
     req.onsuccess = () => resolve(req.result ? req.result : null);
     req.onerror = () => resolve(null);
+  });
+}
+
+export async function getAllFromIndexedDB(storeName, filterFn = null, sortFn = null) {
+  const db = await openNovelDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const req = store.getAll();
+    req.onsuccess = () => {
+      let results = req.result || [];
+      if (filterFn) {
+        results = results.filter(filterFn);
+      }
+      if (sortFn) {
+        results = results.sort(sortFn);
+      }
+      resolve(results);
+    };
+    req.onerror = () => reject(req.error);
   });
 }
 
@@ -98,7 +125,6 @@ function NovelStateExists() {
 }
 
 export async function setNovelProgress(ncode, chapter, totalChapters) {
-  migrateNovelState();
   let state = NovelStateExists();
   if (!state[ncode]) 
     state[ncode] = {};
@@ -110,7 +136,6 @@ export async function setNovelProgress(ncode, chapter, totalChapters) {
 }
 
 export async function setNovel(novel) {
-  migrateNovelState();
   let ncode = novel.ncode;
   let state = NovelStateExists();
   if (!state[ncode]) state[ncode] = {};
@@ -127,7 +152,6 @@ export async function setNovel(novel) {
 }
 
 export async function getNovel(ncode) {
-  migrateNovelState();
   let state = NovelStateExists();
   if (state && state[ncode]) {
     return state[ncode];
@@ -135,31 +159,5 @@ export async function getNovel(ncode) {
   return null;
 }
 
-function migrateNovelState() {
-  try {
-    const keys = Object.keys(localStorage);
-    let migrated = false;
-    let state = NovelStateExists();
-    keys.forEach(key => {
-      if (key.startsWith('novel-progress-') && key !== 'novel-progress') {
-        const ncode = key.replace('novel-progress-', '');
-        try {
-          const data = JSON.parse(localStorage.getItem(key));
-          if (data && typeof data.chapter !== 'undefined' && typeof data.totalChapters !== 'undefined') {
-            if (!state[ncode]) state[ncode] = {};
-            state[ncode].progress = { chapter: Number(data.chapter), totalChapters: Number(data.totalChapters) };
-            migrated = true;
-            localStorage.removeItem(key);
-          }
-        } catch {
-        }
-      }
-    });
-    if (migrated) {
-      localStorage.setItem('novel-state', JSON.stringify(state));
-    }
-  } catch {
-  }
-}
 
 

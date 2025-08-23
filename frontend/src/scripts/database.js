@@ -1,27 +1,55 @@
 import { ref } from 'vue';
 import { authFetch } from '../auth.js';
-import { setNovelProgress, getChapterFromIndexedDB, saveChapterToIndexedDB, getAllChaptersFromIndexedDB } from './cache.js';
+import { setNovelProgress, getFromIndexedDB, getAllFromIndexedDB, saveToIndexedDB, getAllChaptersFromIndexedDB } from './cache.js';
 import { scrape } from './scrape.js';
 
+
+
 export async function fetchNovel(ncode) {
+  const novels = await getFromIndexedDB('NovelData', ncode);
+  if (novels) {
+    return novels;
+  }
+  if (import.meta.env.VITE_STATIC === 'true') {
+    console.log("No novels available")
+    return {};
+  }
+
   const res = await authFetch(`/api/novels/${ncode}`);
   return await res.json();
 }
 
-export async function fetchNovelToC(ncode) {
-  const chapters = await getAllChaptersFromIndexedDB(ncode);
+export async function fetchNovelToC(ncode, order = 'asc') {
+  // some magic sorting function :)
+  const sortFn = order === 'desc'
+    ? (a, b) => b.chapterNum - a.chapterNum
+    : (a, b) => a.chapterNum - b.chapterNum;
+  const chapters = await getAllFromIndexedDB('chapters', ch => ch.ncode === ncode, sortFn);
   return chapters;
 }
 
 
 export async function loadFollows() {
+  const follows = await getAllFromIndexedDB('NovelData');
+  if (follows && Array.isArray(follows) && follows.length > 0) {
+    return ref(follows);
+  }
+  if (import.meta.env.VITE_STATIC === 'true') {
+    console.log("No followed novels available");
+    return ref([]);
+  }
   const trackedNovels = ref([]);
   try {
     const res = await authFetch('/api/novels/follow');
     if (res.status === 401 || res.status === 403) {
       trackedNovels.value = [];
     } else {
-      trackedNovels.value = await res.json();
+      const data = await res.json();
+      trackedNovels.value = data;
+      const novels = data.map(({ user_id, ...rest }) => rest);
+      for (const novel of novels) {
+        await saveToIndexedDB('NovelData', novel);
+      }
     }
   } catch (e) {
     trackedNovels.value = [];
@@ -35,14 +63,14 @@ export async function fetchChapter(ncode, chapterNum) {
     if (!ncode || !chapterNum) {
       return null;
     }
-    let chapter = await getChapterFromIndexedDB(ncode, Number(chapterNum));
+    let chapter = await getFromIndexedDB('chapters', [ncode, Number(chapterNum)]);
     if (chapter) {
       return chapter;
     }
     console.log('Fetching from API:', `/api/novels/${ncode}/${chapterNum}`);
     chapter = await scrape(ncode, chapterNum);
     if (chapter) {
-      const cached = await getChapterFromIndexedDB(ncode, Number(chapterNum));
+      const cached = await getFromIndexedDB('chapters', [ncode, Number(chapterNum)]);
       return cached || chapter;
     }
     return null;
