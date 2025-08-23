@@ -12,15 +12,23 @@ const trackMsg = ref('');
 const isAuthenticated = ref(false);
 
 async function fetchNovel() {
-  var ncodeValue = ncode.value;
   try {
-    if (!ncodeValue || typeof ncodeValue !== 'string' || !ncodeValue.trim()) {
+    if (!ncode.value || typeof ncode.value !== 'string' || !ncode.value.trim()) {
       output.value = 'Error: No ncode provided.';
       outputTable.value = null;
       return;
     }
-    console.log("Fetching ncode:", ncodeValue);
-    const res = await authFetch(`/api/syosetu?ncode=${encodeURIComponent(ncodeValue)}`);
+    console.log("Fetching ncode:", ncode.value);
+    const res = await authFetch(`/api/syosetu?ncode=${encodeURIComponent(ncode.value)}`);
+    if (!res.ok) {
+      let errMsg;
+      if (import.meta.env.VITE_STATIC === 'true') {
+        errMsg = 'Unable to connect to the backend server. This feature is unavailable in static/demo mode. Please follow the steps for running the full tool at the GitHub page.';
+      } else {
+        errMsg = 'Failed to fetch novel data from API.';
+      }
+      throw new Error(errMsg);
+    }
     const full_data = await res.json();
     const data = full_data[1];
     output.value = JSON.stringify(data, null, 2);
@@ -35,7 +43,7 @@ async function fetchNovel() {
       outputTable.value = null;
     }
   } catch (err) {
-    output.value = 'Error: ' + err;
+    output.value = 'Error: ' + (err.message || String(err));
     outputTable.value = null;
   }
 }
@@ -50,7 +58,7 @@ async function trackNovel() {
 }
 
 outputTable.value = null;
-fetchNovel(ncode.value);
+fetchNovel();
 </script>
 
 <template>

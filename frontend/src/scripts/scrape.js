@@ -1,5 +1,5 @@
 import { authFetch } from '../auth.js';
-import { saveChapterToIndexedDB } from './cache.js';
+import { saveToIndexedDB } from './cache.js';
 
 export async function scrape(ncode, chapter) {
   if (!ncode) return;
@@ -15,7 +15,7 @@ export async function scrape(ncode, chapter) {
   }
   const ch = await res.json();
   if (ch && ch.ncode && ch.chapterNum) {
-    await saveChapterToIndexedDB(ncode, Number(ch.chapterNum), ch);
+    await saveToIndexedDB('chapters', { ncode, chapterNum: Number(ch.chapterNum), ...ch });
     return ch;
   }
   return ch;
@@ -34,7 +34,7 @@ export async function scrapeAhead({ ncode, start, end }) {
   if (result.success && Array.isArray(result.results)) {
     for (const ch of result.results) {
       if (ch.success && ch.data) {
-        await saveChapterToIndexedDB(ncode, Number(ch.chapter), ch.data);
+        await saveToIndexedDB('chapters', { ncode, chapterNum: Number(ch.chapterNum), ...ch });
       }
     }
   }
