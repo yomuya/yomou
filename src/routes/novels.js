@@ -4,8 +4,7 @@ const { db } = require('../database');
 const { authenticateToken } = require('./users');
 
 router.get('/', authenticateToken, async (req, res) => { 
-  const ncode = req.params.ncode ? req.params.ncode.toLowerCase() : undefined;
-  db.get('SELECT * FROM novels', (err, rows) => {
+  db.all('SELECT * FROM novels', (err, rows) => {
     if (err) {
       res.status(500).json({ error: err.message });
     } else {
@@ -18,6 +17,24 @@ router.get('/follow', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   db.all(
     `SELECT user_novel_follows.*, novels.*
+     FROM user_novel_follows
+     JOIN novels ON user_novel_follows.ncode = novels.ncode
+     WHERE user_novel_follows.user_id = ?`,
+    [userId],
+    (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.json(rows);
+      }
+    }
+  );
+});
+
+router.get('/follow/with-progress', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  db.all(
+    `SELECT user_novel_follows.ncode, user_novel_follows.current_chapter, novels.title, novels.author, novels.total_chapters, novels.last_checked
      FROM user_novel_follows
      JOIN novels ON user_novel_follows.ncode = novels.ncode
      WHERE user_novel_follows.user_id = ?`,
