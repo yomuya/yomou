@@ -1,12 +1,10 @@
 import { ref } from 'vue';
 import { authFetch } from '../auth.js';
-import { setNovelProgress, getFromIndexedDB, getAllFromIndexedDB, saveToIndexedDB, getAllChaptersFromIndexedDB } from './cache.js';
+import { setNovelProgress, getFromIndexedDB, getAllFromIndexedDB, saveToIndexedDB } from './cache.js';
 import { scrape } from './scrape.js';
 
-
-
 export async function fetchNovel(ncode) {
-  const novels = await getFromIndexedDB('NovelData', ncode);
+  const novels = await getFromIndexedDB('NovelData', ncode.toLowerCase());
   if (novels) {
     return novels;
   }

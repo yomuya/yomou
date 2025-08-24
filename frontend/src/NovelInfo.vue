@@ -14,13 +14,14 @@ const novel = ref(null);
 const toc = ref([]);
 const tocDisplayCount = ref(20);
 const tocDisplayStart = ref(0);
+const tocOrder = ref('asc');
 const route = useRoute();
 const selectedChapters = ref([]);
 const showCheckboxes = ref(false);
 
 onMounted(async () => {
   novel.value = await fetchNovel(route.params.ncode);
-  toc.value = await fetchNovelToC(route.params.ncode, 'asc');
+  toc.value = await fetchNovelToC(route.params.ncode, tocOrder.value);
   setNovel(novel.value)
 });
 
@@ -42,7 +43,7 @@ async function handleScrapeAhead(start, end) {
     // ignore errors for individual chapters
   }
   scraping.value = false;
-  toc.value = await fetchNovelToC(novel.value.ncode);
+  toc.value = await fetchNovelToC(novel.value.ncode, tocOrder.value);
 }
 
 function goToSyosetu(novel) {
@@ -52,14 +53,14 @@ function goToSyosetu(novel) {
 function removeChapterFromCache(chapterNum) {
   if (!novel.value) return;
   removeChaptersFromIndexedDB(novel.value.ncode, [chapterNum]).then(async () => {
-    toc.value = await fetchNovelToC(novel.value.ncode);
+    toc.value = await fetchNovelToC(novel.value.ncode, tocOrder.value);
   });
 }
 
 function removeSelectedChapters() {
   if (!novel.value || selectedChapters.value.length === 0) return;
   removeChaptersFromIndexedDB(novel.value.ncode, selectedChapters.value.slice()).then(async () => {
-    toc.value = await fetchNovelToC(novel.value.ncode);
+    toc.value = await fetchNovelToC(novel.value.ncode, tocOrder.value);
     selectedChapters.value = [];
   });
 }
@@ -75,6 +76,11 @@ watch(tocDisplayCount, () => {
 });
 watch(toc, () => {
   tocDisplayStart.value = 0;
+});
+watch(tocOrder, async () => {
+  if (novel.value) {
+    toc.value = await fetchNovelToC(novel.value.ncode, tocOrder.value);
+  }
 });
 </script>
 
@@ -124,7 +130,7 @@ watch(toc, () => {
       </div>
     </div>
     <div class="toc-box" v-if="toc.length">
-      <div style="display: flex; align-items: center; margin-bottom: 0.5em;">
+      <div style="display: flex; align-items: center; margin-bottom: 0.5em; justify-content: space-between;">
         <span
           @click="removeSelectedChapters"
           :style="{
@@ -136,6 +142,15 @@ watch(toc, () => {
           title="Remove selected chapters"
           :disabled="selectedChapters.length === 0"
         >🗑️</span>
+        <span
+          @click="tocOrder = tocOrder === 'asc' ? 'desc' : 'asc'"
+          :style="{
+            marginLeft: '0.7em',
+            cursor: 'pointer',
+            fontSize: '1.2em'
+          }"
+          title="Toggle ToC order"
+        >{{ tocOrder === 'asc' ? '⬇️ Asc' : '⬆️ Desc' }}</span>
       </div>
       <h3>Scraped Table of Contents</h3>
       <label style="display:inline-block; margin-bottom:0.7em;">

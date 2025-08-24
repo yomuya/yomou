@@ -2,18 +2,46 @@ import { authFetch } from '../auth.js';
 
 function openNovelDB() {
   return new Promise((resolve, reject) => {
-    const request = window.indexedDB.open('NovelDB', 2);
+    const request = window.indexedDB.open('NovelDB', 4);
     request.onupgradeneeded = function (event) {
       const db = event.target.result;
       if (!db.objectStoreNames.contains('chapters')) {
         db.createObjectStore('chapters', { keyPath: ['ncode', 'chapterNum'] });
       }
       if (!db.objectStoreNames.contains('NovelData')) {
-        db.createObjectStore('NovelData', { keyPath: ['ncode'] });
+        db.createObjectStore('NovelData', { keyPath: 'ncode' });
       }
     };
-    request.onsuccess = function (event) {
-      resolve(event.target.result);
+    request.onsuccess = async function (event) {
+      const db = event.target.result;
+      if (import.meta.env.VITE_STATIC !== 'true') {
+        const tx = db.transaction('NovelData', 'readwrite');
+        const store = tx.objectStore('NovelData');
+        const countReq = store.count();
+        countReq.onsuccess = async () => {
+          if (countReq.result === 0) {
+            try {
+              const res = await authFetch(`/api/novels/follow/with-progress`);
+              const data = await res.json();
+              if (Array.isArray(data)) {
+                const tx2 = db.transaction('NovelData', 'readwrite');
+                const store2 = tx2.objectStore('NovelData');
+                data.forEach(row => {
+                  store2.put(row); 
+                  console.log(row);
+                });
+                tx2.oncomplete = () => {};
+                tx2.onerror = (e) => {
+                  console.error('Failed to write NovelData:', e);
+                };
+              }
+            } catch (e) {
+              console.error('Failed to populate NovelData:', e);
+            }
+          }
+        };
+      }
+      resolve(db);
     };
     request.onerror = function (event) {
       reject(event.target.error);
@@ -21,16 +49,12 @@ function openNovelDB() {
   });
 }
 
-export async function saveToIndexedDB(storeName, data, key = null) {
+export async function saveToIndexedDB(storeName, data) {
   const db = await openNovelDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(storeName, 'readwrite');
     const store = tx.objectStore(storeName);
-    if (key) {
-      store.put(data, key);
-    } else {
-      store.put(data);
-    }
+    store.put(data);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
@@ -133,6 +157,13 @@ export async function setNovelProgress(ncode, chapter, totalChapters) {
   if (state[ncode].total_chapters != Number(totalChapters)) state[ncode].total_chapters = Number(totalChapters)
 
   localStorage.setItem('novel-state', JSON.stringify(state));
+
+  const novel = await getFromIndexedDB('NovelData', ncode);
+  console.log(novel);
+  novel.current_chapter = Number(chapter);
+  novel.total_chapters = Number(totalChapters);
+  console.log('Saving updated novel to IndexedDB:', novel); // Add this for debugging
+  await saveToIndexedDB('NovelData', novel);
 }
 
 export async function setNovel(novel) {
