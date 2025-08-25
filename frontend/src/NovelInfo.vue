@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 import { fetchNovel, fetchNovelToC, updateCurrentChapter } from './scripts/database.js'
 import { scrapeAhead } from './scripts/scrape.js';
 import { setNovelProgress, setNovel, removeChaptersFromIndexedDB } from './scripts/cache.js'
+import { importFile } from './scripts/importer.js';
 
 
 const scrapeRangeStart = ref(1);
@@ -18,6 +19,26 @@ const tocOrder = ref('asc');
 const route = useRoute();
 const selectedChapters = ref([]);
 const showCheckboxes = ref(false);
+
+const importApiValues = async () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        await importFile(evt.target.result, true); // true = from browser
+        if (novel.value) {
+          toc.value = await fetchNovelToC(novel.value.ncode, tocOrder.value);
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+  input.click();
+};
 
 onMounted(async () => {
   novel.value = await fetchNovel(route.params.ncode);
@@ -128,7 +149,11 @@ watch(tocOrder, async () => {
         </label>
         <button @click="handleScrapeAhead(scrapeRangeStart, scrapeRangeEnd)" :disabled="scraping">{{ scraping ? 'Scraping...' : 'Scrape range' }}</button>
       </div>
+      <div style="margin-top: 1em;">
+        <button class="import-btn" @click="importApiValues">Import Chapters JSON</button>
+      </div>
     </div>
+
     <div class="toc-box" v-if="toc.length">
       <div style="display: flex; align-items: center; margin-bottom: 0.5em; justify-content: space-between;">
         <span
