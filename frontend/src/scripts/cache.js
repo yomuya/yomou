@@ -50,6 +50,7 @@ function openNovelDB() {
 }
 
 export async function saveToIndexedDB(storeName, data) {
+  console.log('Saving novel with key:', data.ncode);
   const db = await openNovelDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(storeName, 'readwrite');
@@ -61,6 +62,7 @@ export async function saveToIndexedDB(storeName, data) {
 }
 
 export async function getFromIndexedDB(storeName, key) {
+  console.log('Retrieving novel with key:', key);
   const db = await openNovelDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(storeName, 'readonly');
@@ -150,20 +152,23 @@ function NovelStateExists() {
 
 export async function setNovelProgress(ncode, chapter, totalChapters) {
   let state = NovelStateExists();
-  if (!state[ncode]) 
-    state[ncode] = {};
+  const key = ncode.toLowerCase();
+  if (!state[key]) 
+    state[key] = {};
 
-  if (state[ncode].current_chapter != Number(chapter)) state[ncode].current_chapter = Number(chapter);
-  if (state[ncode].total_chapters != Number(totalChapters)) state[ncode].total_chapters = Number(totalChapters)
+  if (state[key].current_chapter != Number(chapter)) state[key].current_chapter = Number(chapter);
+  if (state[key].total_chapters != Number(totalChapters)) state[key].total_chapters = Number(totalChapters)
 
   localStorage.setItem('novel-state', JSON.stringify(state));
 
-  const novel = await getFromIndexedDB('NovelData', ncode);
+  const novel = await getFromIndexedDB('NovelData', key);
   console.log(novel);
-  novel.current_chapter = Number(chapter);
-  novel.total_chapters = Number(totalChapters);
-  console.log('Saving updated novel to IndexedDB:', novel); // Add this for debugging
-  await saveToIndexedDB('NovelData', novel);
+  if (novel) {
+    novel.current_chapter = Number(chapter);
+    novel.total_chapters = Number(totalChapters);
+    console.log('Saving updated novel to IndexedDB:', novel);
+    await saveToIndexedDB('NovelData', novel);
+  }
 }
 
 export async function setNovel(novel) {
@@ -184,8 +189,9 @@ export async function setNovel(novel) {
 
 export async function getNovel(ncode) {
   let state = NovelStateExists();
-  if (state && state[ncode]) {
-    return state[ncode];
+  const key = ncode.toLowerCase();
+  if (state && state[key]) {
+    return state[key];
   }
   return null;
 }

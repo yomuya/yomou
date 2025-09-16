@@ -4,17 +4,22 @@ import { setNovelProgress, getFromIndexedDB, getAllFromIndexedDB, saveToIndexedD
 import { scrape } from './scrape.js';
 
 export async function fetchNovel(ncode) {
-  const novels = await getFromIndexedDB('NovelData', ncode.toLowerCase());
-  if (novels) {
-    return novels;
+  console.log('fetchNovel: received ncode:', ncode);
+  const key = ncode.toLowerCase();
+  const novel = await getFromIndexedDB('NovelData', key);
+  console.log('fetchNovel: novel from indexed db:', novel);
+  if (novel && novel.ncode && novel.title) {
+    return novel;
   }
   if (import.meta.env.VITE_STATIC === 'true') {
     console.log("No novels available")
-    return {};
+    return null;
   }
 
-  const res = await authFetch(`/api/novels/${ncode}`);
-  return await res.json();
+  const res = await authFetch(`/api/novels/${key}`);
+  const apiNovel = await res.json();
+  await saveToIndexedDB('NovelData', { ...apiNovel, ncode: key });
+  return apiNovel;
 }
 
 export async function fetchNovelToC(ncode, order = 'asc') {
@@ -79,11 +84,13 @@ export async function fetchChapter(ncode, chapterNum) {
 }
 
 export async function updateCurrentChapter(ncode, chapter, totalChapters) {
-  await authFetch('/api/novels/follow', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ncode: ncode, chapter: chapter })
-  });
+  if (import.meta.env.VITE_STATIC !== 'true') {
+    await authFetch('/api/novels/follow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ncode: ncode, chapter: chapter })
+    });
+  }
   await setNovelProgress(ncode, chapter, totalChapters);
 }
 

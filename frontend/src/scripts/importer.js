@@ -47,7 +47,7 @@ async function importJson(fileOrPath, fromBrowser = false) {
   ) {
     // Accepts your specified API value format
     console.log(`NovelData: ${data.title} (${data.ncode})`);
-    await saveToIndexedDB('NovelData', { ...data });
+    await saveToIndexedDB('NovelData', { ...data, ncode: data.ncode.toLowerCase() });
   } else {
     console.log('Unknown JSON structure');
   }
