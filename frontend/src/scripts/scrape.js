@@ -2,6 +2,7 @@ import { authFetch } from '../auth.js';
 import { saveToIndexedDB } from './cache.js';
 
 export async function scrape(ncode, chapter) {
+  if (import.meta.env.VITE_STATIC === 'true') return;
   if (!ncode) return;
   if (!chapter) return;
   const res = await authFetch(`/api/syosetu/scrape`, {
@@ -22,6 +23,7 @@ export async function scrape(ncode, chapter) {
 }
 
 export async function scrapeAhead({ ncode, start, end }) {
+  if (import.meta.env.VITE_STATIC === 'true') return;
   const res = await authFetch(`/api/syosetu/scrapeahead`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

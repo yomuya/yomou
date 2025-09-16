@@ -41,9 +41,9 @@ const importApiValues = async () => {
 };
 
 onMounted(async () => {
+  console.log('Before fetchNovel, route.params.ncode:', route.params.ncode);
   novel.value = await fetchNovel(route.params.ncode);
   toc.value = await fetchNovelToC(route.params.ncode, tocOrder.value);
-  setNovel(novel.value)
 });
 
 
@@ -108,7 +108,7 @@ watch(tocOrder, async () => {
 <template>
   <div class="novel-info-row novel-info-column">
     <div class="novel-info-box">
-      <div v-if="novel">
+      <div v-if="novel && novel.ncode && novel.title">
         <h2>
           <span style="cursor:pointer;" @click.stop="goToSyosetu(novel)">
             {{ novel.title }}
@@ -130,7 +130,7 @@ watch(tocOrder, async () => {
         <p><strong>Last Checked:</strong> {{ novel.last_checked }}</p>
       </div>
       <div v-else>
-        <p>Loading...</p>
+        <p>Novel not found or missing data.</p>
       </div>
       <div v-if="novel" style="margin-top: 1em;">
         <label>
