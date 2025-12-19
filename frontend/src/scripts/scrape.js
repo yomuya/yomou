@@ -36,7 +36,7 @@ export async function scrapeAhead({ ncode, start, end }) {
   if (result.success && Array.isArray(result.results)) {
     for (const ch of result.results) {
       if (ch.success && ch.data) {
-        await saveToIndexedDB('chapters', { ncode, chapterNum: Number(ch.chapterNum), ...ch });
+        await saveToIndexedDB('chapters', { ncode, chapterNum: Number(ch.chapter), ...ch.data });
       }
     }
   }
